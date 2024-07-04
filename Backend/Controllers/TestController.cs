@@ -18,14 +18,14 @@ namespace Backend.Controllers
         [HttpGet("protected")]
         public IActionResult Protected()
         {
-            return Ok("This is a protected endpoint.");
+            return Ok(new { message = "This is a protected endpoint." });
         }
 
         [Authorize(Roles = "Admin")]
         [HttpGet("admin")]
         public IActionResult Admin()
         {
-            return Ok("This is an admin endpoint.");
+            return Ok(new { message = "This is a admin endpoint." });
         }
     }
 }
