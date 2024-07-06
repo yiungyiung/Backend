@@ -11,13 +11,13 @@ var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 var configuration = builder.Configuration;
 
-
+//Sercices
 services.AddScoped<IDataService, DataService>();
-
+services.AddScoped<IAdminService, AdminService>();
 
 services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
-
+services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
 services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {

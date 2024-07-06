@@ -30,17 +30,20 @@ namespace Backend.Controllers
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
             var user = await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Email == model.Email);
-            if (user == null || user.PasswordHash != model.Password)
+            if (user == null || user.PasswordHash != model.Password || !user.IsActive)
             {
                 return Unauthorized();
             }
 
             var claims = new[]
-            {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.Role, user.Role?.RoleName ?? string.Empty)
-            };
+{
+    new Claim(JwtRegisteredClaimNames.Email, user.Email),
+    new Claim("name", user.Name),
+    new Claim("contact_number", user.Contact_Number),
+    new Claim("is_active", user.IsActive.ToString()),
+    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+    new Claim(ClaimTypes.Role, user.Role?.RoleName ?? string.Empty)
+};
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
