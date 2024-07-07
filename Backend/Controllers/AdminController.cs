@@ -41,7 +41,7 @@ namespace Backend.Controllers
                 {
                     Email = userDto.Email,
                     RoleId = userDto.RoleId,
-                    Contact_Number= userDto.Contact_Number,
+                    Contact_Number = userDto.Contact_Number,
                     Name = userDto.Name,
                     IsActive = true,
                 };
@@ -51,7 +51,41 @@ namespace Backend.Controllers
             }
             catch (Exception ex)
             {
-                // Log exception or handle accordingly
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpPut("users/{userId}")]
+        public async Task<IActionResult> UpdateUser(int userId, [FromBody] UserDto userDto)
+        {
+            if (userDto == null || userId != userDto.UserId)
+            {
+                return BadRequest("User data is invalid.");
+            }
+
+            try
+            {
+                var user = new User
+                {
+                    UserId = userDto.UserId,
+                    Name = userDto.Name,
+                    Contact_Number = userDto.Contact_Number,
+                    IsActive = userDto.IsActive,
+                    RoleId = userDto.RoleId
+                    // Don't include Email or PasswordHash here
+                };
+
+                var updatedUser = await _adminService.UpdateUserAsync(user);
+                return Ok(updatedUser);
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                Console.WriteLine($"Error in UpdateUser: {ex.Message}");
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }

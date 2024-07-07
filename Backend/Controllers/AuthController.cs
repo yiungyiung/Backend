@@ -41,6 +41,7 @@ namespace Backend.Controllers
     new Claim("name", user.Name),
     new Claim("contact_number", user.Contact_Number),
     new Claim("is_active", user.IsActive.ToString()),
+    new Claim("user_id", user.UserId.ToString()), // Include UserId
     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
     new Claim(ClaimTypes.Role, user.Role?.RoleName ?? string.Empty)
 };

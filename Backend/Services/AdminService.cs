@@ -12,6 +12,7 @@ namespace Backend.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _configuration;
+
         public AdminService(ApplicationDbContext context, IConfiguration configuration)
         {
             _context = context;
@@ -41,18 +42,15 @@ namespace Backend.Services
 
         public async Task<User> AddUserAsync(User user)
         {
-            user.RoleId = user.RoleId + 1;
             var role = await _context.Roles.FindAsync(user.RoleId);
             if (role == null)
             {
                 throw new ArgumentException($"Role with id {user.RoleId} not found.");
             }
 
-            // Assign the role to the user
             user.Role = role;
             user.PasswordHash = GenerateRandomPassword();
             user.IsActive = true;
-            // Add user to context and save changes
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
             await SendWelcomeEmailAsync(user.Email, user.PasswordHash);
@@ -61,7 +59,6 @@ namespace Backend.Services
 
         private string GenerateRandomPassword()
         {
-            // Generate a random string for password (example only, replace with your own logic)
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
             var random = new Random();
             var password = new string(Enumerable.Repeat(chars, 8)
@@ -69,6 +66,7 @@ namespace Backend.Services
 
             return password;
         }
+
         public async Task SendWelcomeEmailAsync(string email, string password)
         {
             var smtpServer = _configuration["SmtpSettings:Server"];
@@ -94,5 +92,36 @@ namespace Backend.Services
                 await client.SendMailAsync(mailMessage);
             }
         }
+
+        public async Task<User> UpdateUserAsync(User user)
+        {
+            var existingUser = await _context.Users.FindAsync(user.UserId);
+            if (existingUser == null)
+            {
+                throw new ArgumentException($"User with id {user.UserId} not found.");
+            }
+
+            // Only update the fields that are allowed to be changed
+            existingUser.Name = user.Name;
+            existingUser.Contact_Number = user.Contact_Number;
+            existingUser.IsActive = user.IsActive;
+            existingUser.RoleId = user.RoleId;
+
+            // Don't update Email or PasswordHash here
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log the exception details
+                Console.WriteLine($"Error updating user: {ex.Message}");
+                Console.WriteLine($"Inner exception: {ex.InnerException?.Message}");
+                throw; // Rethrow the exception to be handled by the controller
+            }
+
+            return existingUser;
+        }
     }
-}
+    }
