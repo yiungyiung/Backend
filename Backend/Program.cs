@@ -14,6 +14,8 @@ var configuration = builder.Configuration;
 //Sercices
 services.AddScoped<IDataService, DataService>();
 services.AddScoped<IAdminService, AdminService>();
+services.AddScoped<IVendorService, VendorService>();
+
 
 services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
