@@ -6,6 +6,7 @@ namespace Backend.Model
     [Table("Vendor")]
     public class Vendor
     {
+        public string VendorRegistration { get; set; }
         public int VendorID { get; set; }
         public string VendorName { get; set; }
         public string VendorAddress { get; set; }
