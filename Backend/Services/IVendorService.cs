@@ -11,5 +11,9 @@ namespace Backend.Services
         Task<Vendor> GetVendorByIdAsync(int id);
         Task<Vendor> UpdateVendorAsync(Vendor vendor);
         Task<Vendor> GetVendorHierarchyAsync(List<int> parentVendorIDs,Vendor currentvendorID);
+        Task<IEnumerable<Category>> GetCategoriesAsync();
+        Task<IEnumerable<Tier>> GetTiersAsync();
+
+        Task<IEnumerable<Vendor>> GetVendorsByTierAsync(int tierId);
     }
 }

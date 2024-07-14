@@ -196,6 +196,26 @@ namespace Backend.Services
 
             return currentVendor;
         }
+        public async Task<IEnumerable<Category>> GetCategoriesAsync()
+        {
+            return await _context.Category.ToListAsync();
+        }
+
+        public async Task<IEnumerable<Tier>> GetTiersAsync()
+        {
+            return await _context.Tier.ToListAsync();
+        }
+
+        public async Task<IEnumerable<Vendor>> GetVendorsByTierAsync(int tierId)
+        {
+            return await _context.Vendors
+                .Where(v => v.TierID == tierId)
+                .Include(v => v.Tier)
+                .Include(v => v.Category)
+                .Include(v => v.User)
+                .ToListAsync();
+        }
+
 
     }
 }

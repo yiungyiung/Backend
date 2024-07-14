@@ -45,7 +45,9 @@ namespace Backend.Controllers
                 }
 
                 var addedVendor = await _vendorService.AddVendorAsync(vendorDto);
+                if (addedVendor.TierID != 1) { 
                 addedVendor = await _vendorService.GetVendorHierarchyAsync(vendorDto.parentVendorIDs,addedVendor);
+                }
                 return CreatedAtAction(nameof(GetVendorById), new { id = addedVendor.VendorID }, addedVendor);
             }
             catch (Exception ex)
@@ -72,5 +74,48 @@ namespace Backend.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
             }
         }
+
+        [HttpGet("categories")]
+        public async Task<IActionResult> GetCategories()
+        {
+            try
+            {
+                var categories = await _vendorService.GetCategoriesAsync();
+                return Ok(categories);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("tiers")]
+        public async Task<IActionResult> GetTiers()
+        {
+            try
+            {
+                var tiers = await _vendorService.GetTiersAsync();
+                return Ok(tiers);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("vendors/byTier/{tierId}")]
+        public async Task<IActionResult> GetVendorsByTier(int tierId)
+        {
+            try
+            {
+                var vendors = await _vendorService.GetVendorsByTierAsync(tierId);
+                return Ok(vendors);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+            }
+        }
+
     }
 }
