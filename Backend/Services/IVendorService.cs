@@ -10,5 +10,6 @@ namespace Backend.Services
         Task<Vendor> AddVendorAsync(VendorDto vendorDto);
         Task<Vendor> GetVendorByIdAsync(int id);
         Task<Vendor> UpdateVendorAsync(Vendor vendor);
+        Task<Vendor> GetVendorHierarchyAsync(List<int> parentVendorIDs,Vendor currentvendorID);
     }
 }

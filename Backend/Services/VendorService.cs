@@ -139,5 +139,63 @@ namespace Backend.Services
 
             return password;
         }
+
+        public async Task<Vendor> GetVendorHierarchyAsync(List<int> parentVendorIDs, Vendor? currentVendor)
+        {
+            if (currentVendor == null)
+            {
+                throw new ArgumentNullException(nameof(currentVendor), "Current vendor cannot be null.");
+            }
+
+            if (parentVendorIDs == null || parentVendorIDs.Count == 0)
+            {
+                throw new ArgumentException("Parent vendor IDs cannot be null or empty.", nameof(parentVendorIDs));
+            }
+
+            try
+            {
+                int vendorID = currentVendor.VendorID;
+
+                foreach (var parentVendorID in parentVendorIDs)
+                {
+                    var parentVendor = await _context.Vendors
+                        .Include(v => v.Tier)
+                        .Include(v => v.Category)
+                        .Include(v => v.User)
+                        .FirstOrDefaultAsync(v => v.VendorID == parentVendorID);
+                    if (parentVendor == null)
+                    {
+                        continue;
+                    }
+                    if (parentVendor.TierID == currentVendor.TierID - 1)
+                    {
+                        var vendorHierarchy = new VendorHierarchy
+                        {
+                            ParentVendorID = parentVendorID,
+                            ChildVendorID = currentVendor.VendorID
+                        };
+                        _context.vendorHierarchy.Add(vendorHierarchy);
+                    }
+                    else
+                    {
+                        throw new ArgumentException("Tier of Parent vendor does not match.", nameof(parentVendorIDs));
+                    }
+
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException dbEx)
+            {
+                throw new Exception("An error occurred while updating the database. See inner exception for details.", dbEx);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An unexpected error occurred. See inner exception for details.", ex);
+            }
+
+            return currentVendor;
+        }
+
     }
 }

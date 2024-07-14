@@ -8,5 +8,6 @@
         public int TierID { get; set; }
         public UserDto User { get; set; }
         public int CategoryID { get; set; }
+        public List<int> parentVendorIDs { get; set; }
     }
 }

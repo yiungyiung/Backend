@@ -45,6 +45,7 @@ namespace Backend.Controllers
                 }
 
                 var addedVendor = await _vendorService.AddVendorAsync(vendorDto);
+                addedVendor = await _vendorService.GetVendorHierarchyAsync(vendorDto.parentVendorIDs,addedVendor);
                 return CreatedAtAction(nameof(GetVendorById), new { id = addedVendor.VendorID }, addedVendor);
             }
             catch (Exception ex)
