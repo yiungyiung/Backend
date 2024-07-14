@@ -147,15 +147,16 @@ namespace Backend.Services
                 throw new ArgumentNullException(nameof(currentVendor), "Current vendor cannot be null.");
             }
 
-            if (parentVendorIDs == null || parentVendorIDs.Count == 0)
+            if (parentVendorIDs == null)
             {
-                throw new ArgumentException("Parent vendor IDs cannot be null or empty.", nameof(parentVendorIDs));
+                throw new ArgumentException("Parent vendor IDs cannot be null.", nameof(parentVendorIDs));
             }
+
+            var matchingVendors = new List<VendorHierarchy>();
+            var mismatchedParentVendorIDs = new List<int>();
 
             try
             {
-                int vendorID = currentVendor.VendorID;
-
                 foreach (var parentVendorID in parentVendorIDs)
                 {
                     var parentVendor = await _context.Vendors
@@ -163,39 +164,49 @@ namespace Backend.Services
                         .Include(v => v.Category)
                         .Include(v => v.User)
                         .FirstOrDefaultAsync(v => v.VendorID == parentVendorID);
+
                     if (parentVendor == null)
                     {
                         continue;
                     }
+
                     if (parentVendor.TierID == currentVendor.TierID - 1)
                     {
-                        var vendorHierarchy = new VendorHierarchy
+                        matchingVendors.Add(new VendorHierarchy
                         {
                             ParentVendorID = parentVendorID,
                             ChildVendorID = currentVendor.VendorID
-                        };
-                        _context.vendorHierarchy.Add(vendorHierarchy);
+                        });
                     }
                     else
                     {
-                        throw new ArgumentException("Tier of Parent vendor does not match.", nameof(parentVendorIDs));
+                        mismatchedParentVendorIDs.Add(parentVendorID);
                     }
-
                 }
 
-                await _context.SaveChangesAsync();
+                if (matchingVendors.Any())
+                {
+                    _context.vendorHierarchy.AddRange(matchingVendors);
+                    await _context.SaveChangesAsync();
+                }
+
+                if (mismatchedParentVendorIDs.Any())
+                {
+                    string mismatchedIDs = string.Join(", ", mismatchedParentVendorIDs);
+                    throw new ArgumentException($"One or more parent vendors' tiers do not match: {mismatchedIDs}", nameof(parentVendorIDs));
+                }
             }
             catch (DbUpdateException dbEx)
             {
                 throw new Exception("An error occurred while updating the database. See inner exception for details.", dbEx);
             }
-            catch (Exception ex)
-            {
-                throw new Exception("An unexpected error occurred. See inner exception for details.", ex);
-            }
 
             return currentVendor;
         }
+
+
+
+
 
     }
 }
