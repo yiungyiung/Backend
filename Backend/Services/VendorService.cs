@@ -110,31 +110,27 @@ namespace Backend.Services
                 throw new ArgumentNullException(nameof(currentVendor));
             }
 
+            var parentVendors = await _context.Vendors
+                .Where(v => parentVendorIDs.Contains(v.VendorID))
+                .Include(v => v.Tier)
+                .ToListAsync();
+
             var matchingVendors = new List<VendorHierarchy>();
             var mismatchedParentVendorIDs = new List<int>();
 
-            foreach (var parentVendorID in parentVendorIDs)
+            foreach (var parentVendor in parentVendors)
             {
-                var parentVendor = await _context.Vendors
-                    .Include(v => v.Tier)
-                    .FirstOrDefaultAsync(v => v.VendorID == parentVendorID);
-
-                if (parentVendor == null)
-                {
-                    continue;
-                }
-
                 if (parentVendor.TierID == currentVendor.TierID - 1)
                 {
                     matchingVendors.Add(new VendorHierarchy
                     {
-                        ParentVendorID = parentVendorID,
+                        ParentVendorID = parentVendor.VendorID,
                         ChildVendorID = currentVendor.VendorID
                     });
                 }
                 else
                 {
-                    mismatchedParentVendorIDs.Add(parentVendorID);
+                    mismatchedParentVendorIDs.Add(parentVendor.VendorID);
                 }
             }
 
@@ -152,6 +148,7 @@ namespace Backend.Services
 
             return currentVendor;
         }
+
 
         public async Task<IEnumerable<Category>> GetCategoriesAsync()
         {
