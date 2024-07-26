@@ -1,10 +1,12 @@
-﻿ using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Backend.Model;
 using Backend.Services;
+using Microsoft.AspNetCore.Http;
+using System.Text.Encodings.Web;
 
 namespace Backend.Controllers
 {
@@ -14,21 +16,31 @@ namespace Backend.Controllers
     public class AdminController : ControllerBase
     {
         private readonly IAdminService _adminService;
+        private readonly HtmlEncoder _htmlEncoder;
 
-        public AdminController(IAdminService adminService)
+        public AdminController(IAdminService adminService, HtmlEncoder htmlEncoder)
         {
-            _adminService = adminService;
+            _adminService = adminService ?? throw new ArgumentNullException(nameof(adminService));
+            _htmlEncoder = htmlEncoder ?? throw new ArgumentNullException(nameof(htmlEncoder));
         }
 
         [HttpGet("users")]
-        public async Task<IActionResult> GetAllUsers()
+        public async Task<ActionResult<IEnumerable<object>>> GetAllUsers()
         {
-            var users = await _adminService.GetAllUsersAsync();
-            return Ok(users);
+            try
+            {
+                var users = await _adminService.GetAllUsersAsync();
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+            }
         }
 
         [HttpPost("users")]
-        public async Task<IActionResult> AddUser([FromBody] UserDto userDto)
+        public async Task<ActionResult<User>> AddUser([FromBody] UserDto userDto)
         {
             if (userDto == null)
             {
@@ -39,10 +51,10 @@ namespace Backend.Controllers
             {
                 var user = new User
                 {
-                    Email = userDto.Email,
+                    Email = _htmlEncoder.Encode(userDto.Email),
                     RoleId = userDto.RoleId,
-                    Contact_Number = userDto.Contact_Number,
-                    Name = userDto.Name,
+                    Contact_Number = _htmlEncoder.Encode(userDto.Contact_Number),
+                    Name = _htmlEncoder.Encode(userDto.Name),
                     IsActive = true,
                 };
 
@@ -51,12 +63,13 @@ namespace Backend.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                // Log the exception
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
             }
         }
 
         [HttpPut("users/{userId}")]
-        public async Task<IActionResult> UpdateUser(int userId, [FromBody] UserDto userDto)
+        public async Task<ActionResult<User>> UpdateUser(int userId, [FromBody] UserDto userDto)
         {
             if (userDto == null || userId != userDto.UserId)
             {
@@ -68,11 +81,10 @@ namespace Backend.Controllers
                 var user = new User
                 {
                     UserId = userDto.UserId,
-                    Name = userDto.Name,
-                    Contact_Number = userDto.Contact_Number,
+                    Name = _htmlEncoder.Encode(userDto.Name),
+                    Contact_Number = _htmlEncoder.Encode(userDto.Contact_Number),
                     IsActive = userDto.IsActive,
                     RoleId = userDto.RoleId
-                    // Don't include Email or PasswordHash here
                 };
 
                 var updatedUser = await _adminService.UpdateUserAsync(user);
@@ -85,8 +97,7 @@ namespace Backend.Controllers
             catch (Exception ex)
             {
                 // Log the exception
-                Console.WriteLine($"Error in UpdateUser: {ex.Message}");
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
             }
         }
     }

@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Backend.Model;
 using System.Net.Mail;
 using System.Net;
+using Microsoft.Extensions.Configuration;
+using System.Security.Cryptography;
 
 namespace Backend.Services
 {
@@ -15,8 +17,8 @@ namespace Backend.Services
 
         public AdminService(ApplicationDbContext context, IConfiguration configuration)
         {
-            _context = context;
-            _configuration = configuration;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
         public async Task<IEnumerable<object>> GetAllUsersAsync()
@@ -49,7 +51,7 @@ namespace Backend.Services
             }
 
             user.Role = role;
-            user.PasswordHash = GenerateRandomPassword();
+            user.PasswordHash = HashPassword(GenerateRandomPassword());
             user.IsActive = true;
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
@@ -57,14 +59,23 @@ namespace Backend.Services
             return user;
         }
 
+        // ... (continuing from the previous AdminService code)
+
         private string GenerateRandomPassword()
         {
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
             var random = new Random();
-            var password = new string(Enumerable.Repeat(chars, 8)
+            return new string(Enumerable.Repeat(chars, 16)
               .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
 
-            return password;
+        private string HashPassword(string password)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                var hashedBytes = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+                return Convert.ToBase64String(hashedBytes);
+            }
         }
 
         public async Task SendWelcomeEmailAsync(string email, string password)
@@ -107,8 +118,6 @@ namespace Backend.Services
             existingUser.IsActive = user.IsActive;
             existingUser.RoleId = user.RoleId;
 
-            // Don't update Email or PasswordHash here
-
             try
             {
                 await _context.SaveChangesAsync();
@@ -118,10 +127,10 @@ namespace Backend.Services
                 // Log the exception details
                 Console.WriteLine($"Error updating user: {ex.Message}");
                 Console.WriteLine($"Inner exception: {ex.InnerException?.Message}");
-                throw; // Rethrow the exception to be handled by the controller
+                throw;
             }
 
             return existingUser;
         }
     }
-    }
+}

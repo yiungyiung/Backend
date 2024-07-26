@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Backend.Services;
+using Microsoft.AspNetCore.Http;
+using System;
 
 namespace Backend.Controllers
 {
@@ -11,12 +11,12 @@ namespace Backend.Controllers
     public class DataController : ControllerBase
     {
         private readonly IDataService _dataService;
+
         public DataController(IDataService dataService)
         {
-            _dataService = dataService;
+            _dataService = dataService ?? throw new ArgumentNullException(nameof(dataService));
         }
-        
-        
+
         [Authorize(Roles = "Admin")]
         [HttpGet("users")]
         public IActionResult GetUsers()
@@ -29,8 +29,7 @@ namespace Backend.Controllers
             catch (Exception ex)
             {
                 // Log the exception
-                Console.WriteLine($"Error in GetUsers: {ex.Message}");
-                return StatusCode(500, "An error occurred while fetching users");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching users");
             }
         }
     }

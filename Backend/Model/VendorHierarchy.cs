@@ -1,9 +1,15 @@
-﻿using Backend.Model;
+﻿using System.ComponentModel.DataAnnotations;
 
-public class VendorHierarchy
+namespace Backend.Model
 {
-    public int HierarchyID { get; set; } 
-    public int ParentVendorID { get; set; }
-    public int ChildVendorID { get; set; }
+    public class VendorHierarchy
+    {
+        public int HierarchyID { get; set; }
 
+        [Required]
+        public int ParentVendorID { get; set; }
+
+        [Required]
+        public int ChildVendorID { get; set; }
+    }
 }

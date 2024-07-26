@@ -14,8 +14,8 @@ namespace Backend.Services
 
         public VendorService(ApplicationDbContext context, IAdminService adminService)
         {
-            _context = context;
-            _adminService = adminService;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _adminService = adminService ?? throw new ArgumentNullException(nameof(adminService));
         }
 
         public async Task<IEnumerable<Vendor>> GetAllVendorsAsync()
@@ -24,32 +24,26 @@ namespace Backend.Services
                 .Include(v => v.Tier)
                 .Include(v => v.Category)
                 .Include(v => v.User)
+                .AsNoTracking()
                 .ToListAsync();
         }
 
         public async Task<Vendor> AddVendorAsync(VendorDto vendorDto)
         {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
             try
             {
-                // Create a new user for the vendor
                 var user = new User
                 {
                     Email = vendorDto.User.Email,
                     Name = vendorDto.User.Name,
                     Contact_Number = vendorDto.User.Contact_Number,
                     RoleId = 4, // Assuming 4 is the RoleId for Vendor
-                    PasswordHash = GenerateRandomPassword()
                 };
 
                 var addedUser = await _adminService.AddUserAsync(user);
 
-                // Check if user is added successfully
-                if (addedUser == null)
-                {
-                    throw new Exception("Failed to add user.");
-                }
-
-                // Create the vendor using the created user
                 var vendor = new Vendor
                 {
                     VendorRegistration = vendorDto.VendorRegistration,
@@ -57,160 +51,116 @@ namespace Backend.Services
                     VendorAddress = vendorDto.VendorAddress,
                     TierID = vendorDto.TierID,
                     UserID = addedUser.UserId,
-                    RegistrationDate = DateTime.Now,
+                    RegistrationDate = DateTime.UtcNow,
                     CategoryID = vendorDto.CategoryID
                 };
 
                 _context.Vendors.Add(vendor);
                 await _context.SaveChangesAsync();
 
-                // Send welcome email to the user
-                await _adminService.SendWelcomeEmailAsync(addedUser.Email, user.PasswordHash);
-
+                await transaction.CommitAsync();
                 return vendor;
             }
-            catch (Exception ex)
+            catch
             {
-                // Log the exception
-                Console.WriteLine($"Error in AddVendorAsync: {ex.Message}");
+                await transaction.RollbackAsync();
                 throw;
             }
         }
 
         public async Task<Vendor> GetVendorByIdAsync(int id)
         {
-            try
-            {
-                var vendor = await _context.Vendors
-                    .Include(v => v.Tier)
-                    .Include(v => v.Category)
-                    .Include(v => v.User)
-                    .FirstOrDefaultAsync(v => v.VendorID == id);
+            var vendor = await _context.Vendors
+                .Include(v => v.Tier)
+                .Include(v => v.Category)
+                .Include(v => v.User)
+                .FirstOrDefaultAsync(v => v.VendorID == id);
 
-                if (vendor == null)
-                {
-                    throw new ArgumentException($"Vendor with id {id} not found.");
-                }
-
-                return vendor;
-            }
-            catch (Exception ex)
+            if (vendor == null)
             {
-                // Log the exception
-                Console.WriteLine($"Error in GetVendorByIdAsync: {ex.Message}");
-                throw;
+                throw new ArgumentException($"Vendor with id {id} not found.");
             }
+
+            return vendor;
         }
 
         public async Task<Vendor> UpdateVendorAsync(Vendor vendor)
         {
-            try
+            var existingVendor = await _context.Vendors.FindAsync(vendor.VendorID);
+            if (existingVendor == null)
             {
-                var existingVendor = await _context.Vendors.FindAsync(vendor.VendorID);
-                if (existingVendor == null)
-                {
-                    throw new ArgumentException($"Vendor with id {vendor.VendorID} not found.");
-                }
-
-                existingVendor.VendorRegistration = vendor.VendorRegistration;
-                existingVendor.VendorName = vendor.VendorName;
-                existingVendor.VendorAddress = vendor.VendorAddress;
-                existingVendor.TierID = vendor.TierID;
-                existingVendor.RegistrationDate = vendor.RegistrationDate;
-                existingVendor.CategoryID = vendor.CategoryID;
-
-                await _context.SaveChangesAsync();
-                return existingVendor;
+                throw new ArgumentException($"Vendor with id {vendor.VendorID} not found.");
             }
-            catch (Exception ex)
-            {
-                // Log the exception
-                Console.WriteLine($"Error in UpdateVendorAsync: {ex.Message}");
-                throw;
-            }
+
+            existingVendor.VendorRegistration = vendor.VendorRegistration;
+            existingVendor.VendorName = vendor.VendorName;
+            existingVendor.VendorAddress = vendor.VendorAddress;
+            existingVendor.TierID = vendor.TierID;
+            existingVendor.RegistrationDate = vendor.RegistrationDate;
+            existingVendor.CategoryID = vendor.CategoryID;
+
+            await _context.SaveChangesAsync();
+            return existingVendor;
         }
 
-        private string GenerateRandomPassword()
-        {
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            var random = new Random();
-            var password = new string(Enumerable.Repeat(chars, 8)
-                .Select(s => s[random.Next(s.Length)]).ToArray());
-
-            return password;
-        }
-
-        public async Task<Vendor> GetVendorHierarchyAsync(List<int> parentVendorIDs, Vendor? currentVendor)
+        public async Task<Vendor> GetVendorHierarchyAsync(List<int> parentVendorIDs, Vendor currentVendor)
         {
             if (currentVendor == null)
             {
-                throw new ArgumentNullException(nameof(currentVendor), "Current vendor cannot be null.");
-            }
-
-            if (parentVendorIDs == null)
-            {
-                throw new ArgumentException("Parent vendor IDs cannot be null.", nameof(parentVendorIDs));
+                throw new ArgumentNullException(nameof(currentVendor));
             }
 
             var matchingVendors = new List<VendorHierarchy>();
             var mismatchedParentVendorIDs = new List<int>();
 
-            try
+            foreach (var parentVendorID in parentVendorIDs)
             {
-                foreach (var parentVendorID in parentVendorIDs)
+                var parentVendor = await _context.Vendors
+                    .Include(v => v.Tier)
+                    .FirstOrDefaultAsync(v => v.VendorID == parentVendorID);
+
+                if (parentVendor == null)
                 {
-                    var parentVendor = await _context.Vendors
-                        .Include(v => v.Tier)
-                        .Include(v => v.Category)
-                        .Include(v => v.User)
-                        .FirstOrDefaultAsync(v => v.VendorID == parentVendorID);
-
-                    if (parentVendor == null)
-                    {
-                        continue;
-                    }
-
-                    if (parentVendor.TierID == currentVendor.TierID - 1)
-                    {
-                        matchingVendors.Add(new VendorHierarchy
-                        {
-                            ParentVendorID = parentVendorID,
-                            ChildVendorID = currentVendor.VendorID
-                        });
-                    }
-                    else
-                    {
-                        mismatchedParentVendorIDs.Add(parentVendorID);
-                    }
+                    continue;
                 }
 
-                if (matchingVendors.Any())
+                if (parentVendor.TierID == currentVendor.TierID - 1)
                 {
-                    _context.vendorHierarchy.AddRange(matchingVendors);
-                    await _context.SaveChangesAsync();
+                    matchingVendors.Add(new VendorHierarchy
+                    {
+                        ParentVendorID = parentVendorID,
+                        ChildVendorID = currentVendor.VendorID
+                    });
                 }
-
-                if (mismatchedParentVendorIDs.Any())
+                else
                 {
-                    string mismatchedIDs = string.Join(", ", mismatchedParentVendorIDs);
-                    throw new ArgumentException($"One or more parent vendors' tiers do not match: {mismatchedIDs}", nameof(parentVendorIDs));
+                    mismatchedParentVendorIDs.Add(parentVendorID);
                 }
             }
-            catch (DbUpdateException dbEx)
+
+            if (matchingVendors.Any())
             {
-                throw new Exception("An error occurred while updating the database. See inner exception for details.", dbEx);
+                _context.vendorHierarchy.AddRange(matchingVendors);
+                await _context.SaveChangesAsync();
+            }
+
+            if (mismatchedParentVendorIDs.Any())
+            {
+                string mismatchedIDs = string.Join(", ", mismatchedParentVendorIDs);
+                throw new ArgumentException($"One or more parent vendors' tiers do not match: {mismatchedIDs}", nameof(parentVendorIDs));
             }
 
             return currentVendor;
         }
+
         public async Task<IEnumerable<Category>> GetCategoriesAsync()
         {
-            return await _context.Category.ToListAsync();
+            return await _context.Category.AsNoTracking().ToListAsync();
         }
 
         public async Task<IEnumerable<Tier>> GetTiersAsync()
         {
-            return await _context.Tier.ToListAsync();
+            return await _context.Tier.AsNoTracking().ToListAsync();
         }
 
         public async Task<IEnumerable<Vendor>> GetVendorsByTierAsync(int tierId)
@@ -220,13 +170,8 @@ namespace Backend.Services
                 .Include(v => v.Tier)
                 .Include(v => v.Category)
                 .Include(v => v.User)
+                .AsNoTracking()
                 .ToListAsync();
         }
-
-
-
-
-
-
     }
 }
