@@ -1,4 +1,4 @@
-﻿namespace Backend.Model
+﻿namespace Backend.Model.DTOs
 {
     public class VendorDto
     {

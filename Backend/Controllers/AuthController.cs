@@ -10,6 +10,7 @@ using Backend.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using System.Text.Encodings.Web;
+using System.Security.Cryptography;
 
 namespace Backend.Controllers
 {
@@ -39,7 +40,7 @@ namespace Backend.Controllers
             var user = await _context.Users.Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.Email == model.Email);
 
-            if (user == null || !VerifyPassword(model.Password, user.PasswordHash) || !user.IsActive)
+            if (user == null || !(model.Password==user.PasswordHash) || !user.IsActive)
             {
                 return Unauthorized("Invalid credentials or inactive account.");
             }
@@ -70,8 +71,14 @@ namespace Backend.Controllers
 
         private bool VerifyPassword(string inputPassword, string storedHash)
         {
-            return inputPassword == storedHash;
+            using (var sha256 = SHA256.Create())
+            {
+                var hashedInputPassword = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(inputPassword));
+                var hashedInputPasswordBase64 = Convert.ToBase64String(hashedInputPassword);
+                return hashedInputPasswordBase64 == storedHash;
+            }
         }
+
     }
 
     public class LoginModel

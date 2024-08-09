@@ -1,6 +1,6 @@
 ﻿using Backend.Model;
 
-namespace Backend.Services
+namespace Backend.Services.Interfaces
 {
     public interface IDataService
     {

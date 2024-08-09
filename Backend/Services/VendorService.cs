@@ -1,4 +1,6 @@
 ﻿using Backend.Model;
+using Backend.Model.DTOs;
+using Backend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

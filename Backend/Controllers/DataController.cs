@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Backend.Services;
 using Microsoft.AspNetCore.Http;
 using System;
+using Backend.Services.Interfaces;
 
 namespace Backend.Controllers
 {

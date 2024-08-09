@@ -18,6 +18,13 @@ namespace Backend.Model
         public DbSet<Category> Category { get; set; }
         public DbSet<VendorHierarchy> vendorHierarchy { get; set; }
 
+        public DbSet<Question> Questions { get; set; }
+        public DbSet<Option> Options { get; set; }
+        public DbSet<Textbox> Textboxes { get; set; }
+        public DbSet<Framework> Frameworks{ get; set; }
+        public DbSet<QuestionFramework> QuestionFramework { get; set; }
+
+        public DbSet<UnitOfMeasurement> UnitOfMeasurements { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<VendorHierarchy>()
@@ -35,7 +42,16 @@ namespace Backend.Model
                 .HasForeignKey(vh => vh.ChildVendorID)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<UnitOfMeasurement>()
+        .HasKey(u => u.UOMID);
+
+            modelBuilder.Entity<Textbox>()
+                .HasOne(t => t.UnitOfMeasurement)
+                .WithMany()
+                .HasForeignKey(t => t.UOMID)
+                .OnDelete(DeleteBehavior.SetNull);
             base.OnModelCreating(modelBuilder);
+          
         }
     }
 }

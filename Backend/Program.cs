@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Backend.Model;
 using Backend.Services;
+using Backend.Services.Interfaces;
 var builder = WebApplication.CreateBuilder(args);
 
 var services = builder.Services;
@@ -15,7 +16,7 @@ var configuration = builder.Configuration;
 services.AddScoped<IDataService, DataService>();
 services.AddScoped<IAdminService, AdminService>();
 services.AddScoped<IVendorService, VendorService>();
-
+services.AddScoped<IQuestionService, QuestionService>();
 
 services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));

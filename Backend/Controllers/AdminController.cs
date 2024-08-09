@@ -4,9 +4,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Backend.Model;
-using Backend.Services;
 using Microsoft.AspNetCore.Http;
 using System.Text.Encodings.Web;
+using Backend.Model.DTOs;
+using Backend.Services.Interfaces;
+using Backend.Services;
 
 namespace Backend.Controllers
 {

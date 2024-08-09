@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Backend.Model
+namespace Backend.Model.DTOs
 {
     public class UserDto
     {

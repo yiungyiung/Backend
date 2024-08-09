@@ -7,6 +7,7 @@ using System.Net.Mail;
 using System.Net;
 using Microsoft.Extensions.Configuration;
 using System.Security.Cryptography;
+using Backend.Services.Interfaces;
 
 namespace Backend.Services
 {
@@ -51,11 +52,12 @@ namespace Backend.Services
             }
 
             user.Role = role;
-            user.PasswordHash = HashPassword(GenerateRandomPassword());
+            String password = GenerateRandomPassword();
+            user.PasswordHash = HashPassword(password);
             user.IsActive = true;
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
-            await SendWelcomeEmailAsync(user.Email, user.PasswordHash);
+            await SendWelcomeEmailAsync(user.Email, password);
             return user;
         }
 
