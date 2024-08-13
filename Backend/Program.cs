@@ -1,26 +1,28 @@
-using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Backend.Model;
 using Backend.Services;
 using Backend.Services.Interfaces;
+
 var builder = WebApplication.CreateBuilder(args);
 
 var services = builder.Services;
 var configuration = builder.Configuration;
 
-//Sercices
 services.AddScoped<IDataService, DataService>();
 services.AddScoped<IAdminService, AdminService>();
 services.AddScoped<IVendorService, VendorService>();
 services.AddScoped<IQuestionService, QuestionService>();
+services.AddScoped<IQuestionnaireService, QuestionnaireService>();
 
 services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+
 services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
+
 services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -35,15 +37,17 @@ services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]))
         };
     });
+
 services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
         builder => builder
-            .WithOrigins("http://localhost:4200") // Update with your Angular app URL
+            .WithOrigins("http://localhost:4200")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());
 });
+
 services.AddControllers();
 
 var app = builder.Build();
