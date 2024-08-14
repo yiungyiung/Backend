@@ -17,6 +17,8 @@ services.AddScoped<IAdminService, AdminService>();
 services.AddScoped<IVendorService, VendorService>();
 services.AddScoped<IQuestionService, QuestionService>();
 services.AddScoped<IQuestionnaireService, QuestionnaireService>();
+services.AddScoped<IQuestionnaireAssignmentService, QuestionnaireAssignmentService>();
+
 
 services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));

@@ -41,7 +41,7 @@ namespace Backend.Services
                     Email = vendorDto.User.Email,
                     Name = vendorDto.User.Name,
                     Contact_Number = vendorDto.User.Contact_Number,
-                    RoleId = 4, // Assuming 4 is the RoleId for Vendor
+                    RoleId = 4, 
                 };
 
                 var addedUser = await _adminService.AddUserAsync(user);

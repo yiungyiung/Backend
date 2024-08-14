@@ -25,6 +25,9 @@ public class ApplicationDbContext : DbContext
     public DbSet<UnitOfMeasurement> UnitOfMeasurements { get; set; }
     public DbSet<Questionnaire> Questionnaires { get; set; }
     public DbSet<QuestionQuestionnaire> QuestionQuestionnaire { get; set; }
+    public DbSet<Status> Status { get; set; }
+
+    public DbSet<QuestionnaireAssignment> QuestionnaireAssignments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -66,6 +69,24 @@ public class ApplicationDbContext : DbContext
             .WithMany() 
             .HasForeignKey(qq => qq.QuestionnaireID)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<QuestionnaireAssignment>()
+        .HasKey(qa => qa.AssignmentID);
+
+        modelBuilder.Entity<QuestionnaireAssignment>()
+            .HasOne(qa => qa.Vendor)
+            .WithMany()
+            .HasForeignKey(qa => qa.VendorID);
+
+        modelBuilder.Entity<QuestionnaireAssignment>()
+            .HasOne(qa => qa.Questionnaire)
+            .WithMany()
+            .HasForeignKey(qa => qa.QuestionnaireID);
+
+        modelBuilder.Entity<QuestionnaireAssignment>()
+            .HasOne(qa => qa.Status)
+            .WithMany()
+            .HasForeignKey(qa => qa.StatusID);
         base.OnModelCreating(modelBuilder);
     }
 }
