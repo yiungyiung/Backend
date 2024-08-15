@@ -15,6 +15,7 @@ var configuration = builder.Configuration;
 services.AddScoped<IDataService, DataService>();
 services.AddScoped<IAdminService, AdminService>();
 services.AddScoped<IVendorService, VendorService>();
+services.AddScoped<IVendorHierarchy, VendorHierarchyService>();
 services.AddScoped<IQuestionService, QuestionService>();
 services.AddScoped<IQuestionnaireService, QuestionnaireService>();
 services.AddScoped<IQuestionnaireAssignmentService, QuestionnaireAssignmentService>();

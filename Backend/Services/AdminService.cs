@@ -57,7 +57,7 @@ namespace Backend.Services
             user.IsActive = true;
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
-            await SendWelcomeEmailAsync(user.Email, password);
+            //await SendWelcomeEmailAsync(user.Email, password);
             return user;
         }
 
