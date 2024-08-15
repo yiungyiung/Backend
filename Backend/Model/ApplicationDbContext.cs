@@ -19,7 +19,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<Question> Questions { get; set; }
     public DbSet<Option> Options { get; set; }
     public DbSet<Textbox> Textboxes { get; set; }
-    public DbSet<Framework> Frameworks { get; set; }
+    public DbSet<Framework> Framework { get; set; }
+    public DbSet<Domain> Domain { get; set; }
     public DbSet<QuestionFramework> QuestionFramework { get; set; }
 
     public DbSet<UnitOfMeasurement> UnitOfMeasurements { get; set; }

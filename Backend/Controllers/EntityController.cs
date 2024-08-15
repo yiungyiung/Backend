@@ -1,0 +1,115 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Backend.Model;
+
+namespace Backend.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class EntityController : ControllerBase
+    {
+        private readonly IEntityService _entityService;
+
+        public EntityController(IEntityService entityService)
+        {
+            _entityService = entityService;
+        }
+
+        #region Tier
+        [HttpGet("tiers")]
+        public async Task<ActionResult<IEnumerable<Tier>>> GetAllTiers()
+        {
+            var tiers = await _entityService.GetAllTiersAsync();
+            return Ok(tiers);
+        }
+
+        [HttpGet("tiers/{id}")]
+        public async Task<ActionResult<Tier>> GetTierById(int id)
+        {
+            var tier = await _entityService.GetTierByIdAsync(id);
+            if (tier == null) return NotFound();
+            return Ok(tier);
+        }
+
+        [HttpPost("tiers")]
+        public async Task<ActionResult> AddTier(Tier tier)
+        {
+            await _entityService.AddTierAsync(tier);
+            return CreatedAtAction(nameof(GetTierById), new { id = tier.TierId }, tier);
+        }
+        #endregion
+
+        #region Category
+        [HttpGet("categories")]
+        public async Task<ActionResult<IEnumerable<Category>>> GetAllCategories()
+        {
+            var categories = await _entityService.GetAllCategoriesAsync();
+            return Ok(categories);
+        }
+
+        [HttpGet("categories/{id}")]
+        public async Task<ActionResult<Category>> GetCategoryById(int id)
+        {
+            var category = await _entityService.GetCategoryByIdAsync(id);
+            if (category == null) return NotFound();
+            return Ok(category);
+        }
+
+        [HttpPost("categories")]
+        public async Task<ActionResult> AddCategory(Category category)
+        {
+            await _entityService.AddCategoryAsync(category);
+            return CreatedAtAction(nameof(GetCategoryById), new { id = category.CategoryID }, category);
+        }
+        #endregion
+
+        #region Domain
+        [HttpGet("domains")]
+        public async Task<ActionResult<IEnumerable<Domain>>> GetAllDomains()
+        {
+            var domains = await _entityService.GetAllDomainsAsync();
+            return Ok(domains);
+        }
+
+        [HttpGet("domains/{id}")]
+        public async Task<ActionResult<Domain>> GetDomainById(int id)
+        {
+            var domain = await _entityService.GetDomainByIdAsync(id);
+            if (domain == null) return NotFound();
+            return Ok(domain);
+        }
+
+        [HttpPost("domains")]
+        public async Task<ActionResult> AddDomain(Domain domain)
+        {
+            await _entityService.AddDomainAsync(domain);
+            return CreatedAtAction(nameof(GetDomainById), new { id = domain.DomainID }, domain);
+        }
+        #endregion
+
+        #region Framework
+        [HttpGet("frameworks")]
+        public async Task<ActionResult<IEnumerable<Framework>>> GetAllFrameworks()
+        {
+            var frameworks = await _entityService.GetAllFrameworksAsync();
+            return Ok(frameworks);
+        }
+
+        [HttpGet("frameworks/{id}")]
+        public async Task<ActionResult<Framework>> GetFrameworkById(int id)
+        {
+            var framework = await _entityService.GetFrameworkByIdAsync(id);
+            if (framework == null) return NotFound();
+            return Ok(framework);
+        }
+
+        [HttpPost("frameworks")]
+        public async Task<ActionResult> AddFramework(Framework framework)
+        {
+            await _entityService.AddFrameworkAsync(framework);
+            return CreatedAtAction(nameof(GetFrameworkById), new { id = framework.FrameworkID }, framework);
+        }
+        #endregion
+    }
+}
