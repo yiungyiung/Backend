@@ -8,7 +8,7 @@ using Backend.Model.DTOs;
 namespace Backend.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize(Roles = "Admin,Manager")]
+    
     [ApiController]
     public class QuestionController : ControllerBase
     {
@@ -18,7 +18,7 @@ namespace Backend.Controllers
         {
             _questionService = questionService;
         }
-
+        [Authorize(Roles = "Admin,Manager")]
         [HttpPost("add")]
         public async Task<IActionResult> AddQuestion([FromBody] QuestionDto question)
         {
@@ -26,6 +26,17 @@ namespace Backend.Controllers
             var addedQuestion = await _questionService.AddQuestionAsync(question);
             return Ok(addedQuestion);
         }
-        
+        [Authorize(Roles = "Admin,Manager,Vendor")]
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetQuestionById(int id)
+        {
+            var question = await _questionService.GetQuestionByIdAsync(id);
+            if (question == null)
+            {
+                return NotFound();
+            }
+            return Ok(question);
+        }
+
     }
 }

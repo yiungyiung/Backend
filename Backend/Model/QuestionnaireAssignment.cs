@@ -21,8 +21,9 @@ namespace Backend.Model
         [ForeignKey("StatusID")]
         public Status Status { get; set; }
 
-        public DateTime AssignmentDate { get; set; } = DateTime.Now;
+        public DateTime AssignmentDate { get; set; }
 
         public DateTime DueDate { get; set; }
+        public DateTime SubmissionDate { get; set; }
     }
 }

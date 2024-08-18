@@ -1,6 +1,7 @@
 ﻿using Backend.Model;
 using Backend.Model.DTOs;
 using Backend.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers
@@ -15,7 +16,7 @@ namespace Backend.Controllers
         {
             _service = service;
         }
-
+        [Authorize(Roles = "Admin,Manager")]
         [HttpPost]
         public IActionResult CreateQuestionnaireAssignment([FromBody] QuestionnaireAssignmentDto dto)
         {
@@ -27,7 +28,7 @@ namespace Backend.Controllers
             _service.CreateAssignments(dto);
             return Ok(new { message = "Assignments created successfully." });
         }
-
+        [Authorize(Roles = "Admin,Manager,Vendor")]
         [HttpGet("{id}")]
         public IActionResult GetAssignmentById(int id)
         {
@@ -40,7 +41,7 @@ namespace Backend.Controllers
 
             return Ok(assignment);
         }
-
+        [Authorize(Roles = "Admin,Manager,Vendor")]
         [HttpGet("vendor/{vendorId}")]
         public IActionResult GetAssignmentsByVendorId(int vendorId)
         {

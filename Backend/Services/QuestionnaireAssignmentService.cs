@@ -24,8 +24,9 @@ namespace Backend.Services
                     VendorID = vendorID,
                     QuestionnaireID = dto.QuestionnaireID,
                     StatusID = dto.StatusID,
-                    DueDate = dto.DueDate,
-                    AssignmentDate = DateTime.Now  // Automatically set
+                    DueDate = DateTime.Now,
+                    AssignmentDate = DateTime.Now,  // Automatically set
+                    SubmissionDate = DateTime.Now
                 };
 
                 _context.QuestionnaireAssignments.Add(assignment);

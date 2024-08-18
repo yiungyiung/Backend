@@ -6,5 +6,6 @@ namespace Backend.Services
     public interface IQuestionService
     {
         Task<Question> AddQuestionAsync(QuestionDto questionDto);
+        Task<DetailedQuestionDto> GetQuestionByIdAsync(int questionID);
     }
 }

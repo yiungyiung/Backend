@@ -1,4 +1,5 @@
-﻿using Backend.Model;
+﻿using Azure;
+using Backend.Model;
 using Microsoft.EntityFrameworkCore;
 
 public class ApplicationDbContext : DbContext
@@ -23,13 +24,15 @@ public class ApplicationDbContext : DbContext
     public DbSet<Domain> Domain { get; set; }
     public DbSet<QuestionFramework> QuestionFramework { get; set; }
 
-    public DbSet<UnitOfMeasurement> UnitOfMeasurements { get; set; }
+    public DbSet<UnitOfMeasurement> UnitOfMeasurement { get; set; }
     public DbSet<Questionnaire> Questionnaires { get; set; }
     public DbSet<QuestionQuestionnaire> QuestionQuestionnaire { get; set; }
     public DbSet<Status> Status { get; set; }
 
     public DbSet<QuestionnaireAssignment> QuestionnaireAssignments { get; set; }
-
+    public DbSet<Responses> Responses { get; set; }
+    public DbSet<OptionResponses> OptionResponses { get; set; }
+    public DbSet<TextBoxResponses> TextBoxResponses { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<VendorHierarchy>()
@@ -88,6 +91,51 @@ public class ApplicationDbContext : DbContext
             .HasOne(qa => qa.Status)
             .WithMany()
             .HasForeignKey(qa => qa.StatusID);
+
+        modelBuilder.Entity<Responses>()
+    .HasKey(r => r.ResponseID);
+
+        modelBuilder.Entity<Responses>()
+            .HasOne(r => r.Assignment)
+            .WithMany()
+            .HasForeignKey(r => r.AssignmentID)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Responses>()
+            .HasOne(r => r.Question)
+            .WithMany()
+            .HasForeignKey(r => r.QuestionID)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<OptionResponses>()
+            .HasKey(or => or.OptionResponseID);
+
+        modelBuilder.Entity<OptionResponses>()
+            .HasOne(or => or.Response)
+            .WithMany()
+            .HasForeignKey(or => or.ResponseID)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<OptionResponses>()
+            .HasOne(or => or.Option)
+            .WithMany()
+            .HasForeignKey(or => or.OptionID)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<TextBoxResponses>()
+            .HasKey(tr => tr.TextBoxResponseID);
+
+        modelBuilder.Entity<TextBoxResponses>()
+            .HasOne(tr => tr.Response)
+            .WithMany()
+            .HasForeignKey(tr => tr.ResponseID)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<TextBoxResponses>()
+            .HasOne(tr => tr.TextBox)
+            .WithMany()
+            .HasForeignKey(tr => tr.TextBoxID)
+            .OnDelete(DeleteBehavior.Cascade);
         base.OnModelCreating(modelBuilder);
     }
 }

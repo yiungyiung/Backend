@@ -79,5 +79,59 @@ namespace Backend.Services
             }
             await _context.SaveChangesAsync();
         }
+        public async Task<DetailedQuestionDto> GetQuestionByIdAsync(int questionID)
+        {
+            var question = await _context.Questions
+                .Include(q => q.Domain)
+                .Include(q => q.Category)
+                .FirstOrDefaultAsync(q => q.QuestionID == questionID);
+
+            if (question == null)
+                return null;
+
+            var options = await _context.Options
+                .Where(o => o.QuestionID == questionID)
+                .ToListAsync();
+
+            var textboxes = await _context.Textboxes
+                .Where(t => t.QuestionID == questionID)
+                .Include(t => t.UnitOfMeasurement)
+                .ToListAsync();
+
+            //var fileUploads = await _context.FileUploads
+             //   .Where(f => f.QuestionID == questionID)
+              //  .ToListAsync();
+
+            // Map the data to DetailedQuestionDto
+            var detailedQuestionDto = new DetailedQuestionDto
+            {
+                QuestionID = question.QuestionID,
+                QuestionText = question.QuestionText,
+                Description = question.Description,
+                OrderIndex = question.OrderIndex,
+                DomainID = question.DomainID,
+                DomainName = question.Domain?.DomainName, // Assuming Domain has a Name property
+                CategoryID = question.CategoryID,
+                CategoryName = question.Category?.CategoryName, // Assuming Category has a Name property
+                ParentQuestionID = question.ParentQuestionID,
+                Options = options.Select(o => new DOptionDto
+                {
+                    OptionID = o.OptionID,
+                    OptionText = o.OptionText,
+                    OrderIndex = o.OrderIndex
+                }).ToList(),
+                Textboxes = textboxes.Select(t => new DTextboxDto
+                {
+                    TextBoxID = t.TextBoxID,
+                    Label = t.Label,
+                    OrderIndex = t.OrderIndex,
+                    UOMID = t.UOMID,
+                    UOMType = t.UnitOfMeasurement?.UOMType
+                }).ToList()
+            };
+
+            return detailedQuestionDto;
+        }
+
     }
 }

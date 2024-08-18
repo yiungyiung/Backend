@@ -42,5 +42,44 @@ namespace Backend.Services
 
             return questionnaire.QuestionnaireID;
         }
+
+        public async Task<QuestionnaireWithQuestionsDto> GetQuestionsByQuestionnaireIdAsync(int questionnaireId)
+        {
+            var questionnaireData = await _context.QuestionQuestionnaire
+                .Where(qq => qq.QuestionnaireID == questionnaireId)
+                .Include(qq => qq.Questionnaire)
+                .Select(qq => new QuestionnaireWithQuestionsDto
+                {
+                    QuestionnaireID = qq.Questionnaire.QuestionnaireID,
+                    Name = qq.Questionnaire.Name,
+                    Year = qq.Questionnaire.Year,
+                    QuestionIDs = _context.QuestionQuestionnaire
+                        .Where(q => q.QuestionnaireID == questionnaireId)
+                        .Select(q => q.QuestionID)
+                        .ToList()
+                })
+                .FirstOrDefaultAsync();
+
+            return questionnaireData;
+        }
+
+        public async Task<List<QuestionnaireWithQuestionsDto>> GetAllQuestionnairesWithQuestionsAsync()
+        {
+            var allQuestionnaires = await _context.Questionnaires
+                .Select(q => new QuestionnaireWithQuestionsDto
+                {
+                    QuestionnaireID = q.QuestionnaireID,
+                    Name = q.Name,
+                    Year = q.Year,
+                    QuestionIDs = _context.QuestionQuestionnaire
+                        .Where(qq => qq.QuestionnaireID == q.QuestionnaireID)
+                        .Select(qq => qq.QuestionID)
+                        .ToList()
+                })
+                .ToListAsync();
+
+            return allQuestionnaires;
+        }
+
     }
 }
