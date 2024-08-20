@@ -83,4 +83,23 @@ public class EntityService : IEntityService
         await _context.SaveChangesAsync();
     }
     #endregion
+
+    #region UnitOfMeasurement
+    public async Task<IEnumerable<UnitOfMeasurement>> GetAllUnitsOfMeasurementAsync()
+    {
+        return await _context.UnitOfMeasurement.ToListAsync();
+    }
+
+    public async Task<UnitOfMeasurement> GetUnitOfMeasurementByIdAsync(int id)
+    {
+        return await _context.UnitOfMeasurement.FindAsync(id);
+    }
+
+    public async Task AddUnitOfMeasurementAsync(UnitOfMeasurement unitOfMeasurement)
+    {
+        _context.UnitOfMeasurement.Add(unitOfMeasurement);
+        await _context.SaveChangesAsync();
+    }
+    #endregion
+
 }

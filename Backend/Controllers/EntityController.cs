@@ -111,5 +111,29 @@ namespace Backend.Controllers
             return CreatedAtAction(nameof(GetFrameworkById), new { id = framework.FrameworkID }, framework);
         }
         #endregion
+
+        #region UnitOfMeasurement
+        [HttpGet("unitsOfMeasurement")]
+        public async Task<ActionResult<IEnumerable<UnitOfMeasurement>>> GetAllUnitsOfMeasurement()
+        {
+            var units = await _entityService.GetAllUnitsOfMeasurementAsync();
+            return Ok(units);
+        }
+
+        [HttpGet("unitsOfMeasurement/{id}")]
+        public async Task<ActionResult<UnitOfMeasurement>> GetUnitOfMeasurementById(int id)
+        {
+            var unit = await _entityService.GetUnitOfMeasurementByIdAsync(id);
+            if (unit == null) return NotFound();
+            return Ok(unit);
+        }
+
+        [HttpPost("unitsOfMeasurement")]
+        public async Task<ActionResult> AddUnitOfMeasurement(UnitOfMeasurement unitOfMeasurement)
+        {
+            await _entityService.AddUnitOfMeasurementAsync(unitOfMeasurement);
+            return CreatedAtAction(nameof(GetUnitOfMeasurementById), new { id = unitOfMeasurement.UOMID }, unitOfMeasurement);
+        }
+        #endregion
     }
 }

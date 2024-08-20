@@ -81,7 +81,8 @@ namespace Backend.Controllers
             try
             {
                 var user = new User
-                {
+                {   
+                    Email=userDto.Email,
                     UserId = userDto.UserId,
                     Name = _htmlEncoder.Encode(userDto.Name),
                     Contact_Number = _htmlEncoder.Encode(userDto.Contact_Number),

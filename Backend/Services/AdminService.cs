@@ -115,6 +115,7 @@ namespace Backend.Services
             }
 
             // Only update the fields that are allowed to be changed
+            existingUser.Email = user.Email;
             existingUser.Name = user.Name;
             existingUser.Contact_Number = user.Contact_Number;
             existingUser.IsActive = user.IsActive;
