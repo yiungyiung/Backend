@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using System.Text.Encodings.Web;
 using System.Security.Cryptography;
+using Backend.Model.DTOs; // Ensure the correct namespace is used for ChangePasswordDto
+using Backend.Services;
 
 namespace Backend.Controllers
 {
@@ -21,12 +23,14 @@ namespace Backend.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _configuration;
         private readonly HtmlEncoder _htmlEncoder;
+        private readonly IAuthService _authService; // Add IAuthService to the controller
 
-        public AuthController(ApplicationDbContext context, IConfiguration configuration, HtmlEncoder htmlEncoder)
+        public AuthController(ApplicationDbContext context, IConfiguration configuration, HtmlEncoder htmlEncoder, IAuthService authService)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _htmlEncoder = htmlEncoder ?? throw new ArgumentNullException(nameof(htmlEncoder));
+            _authService = authService ?? throw new ArgumentNullException(nameof(authService)); // Initialize IAuthService
         }
 
         [HttpPost("login")]
@@ -40,7 +44,7 @@ namespace Backend.Controllers
             var user = await _context.Users.Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.Email == model.Email);
 
-            if (user == null || !(model.Password==user.PasswordHash) || !user.IsActive)
+            if (user == null || !VerifyPassword(model.Password, user.PasswordHash) || !user.IsActive)
             {
                 return Unauthorized("Invalid credentials or inactive account.");
             }
@@ -69,6 +73,39 @@ namespace Backend.Controllers
             return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
         }
 
+        [HttpPost("changepassword")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
+        {
+            if (dto == null || string.IsNullOrWhiteSpace(dto.OldPassword) || string.IsNullOrWhiteSpace(dto.NewPassword))
+            {
+                return BadRequest("Invalid password data.");
+            }
+
+            // Find the user by UserId
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == dto.UserId);
+
+            if (user == null)
+            {
+                return BadRequest("User not found.");
+            }
+
+            // Verify old password
+            if (!VerifyPassword(dto.OldPassword, user.PasswordHash))
+            {
+                return BadRequest("Old password is incorrect.");
+            }
+
+            // Hash the new password
+            var newPasswordHash = HashPassword(dto.NewPassword);
+
+            // Update password in database
+            user.PasswordHash = newPasswordHash;
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+
+            return Ok("Password changed successfully.");
+        }
+
         private bool VerifyPassword(string inputPassword, string storedHash)
         {
             using (var sha256 = SHA256.Create())
@@ -79,6 +116,14 @@ namespace Backend.Controllers
             }
         }
 
+        private string HashPassword(string password)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                var hashedPassword = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+                return Convert.ToBase64String(hashedPassword);
+            }
+        }
     }
 
     public class LoginModel
