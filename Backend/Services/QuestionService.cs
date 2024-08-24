@@ -133,5 +133,15 @@ namespace Backend.Services
             return detailedQuestionDto;
         }
 
+        public async Task<IEnumerable<int>> GetQuestionIdsByFrameworkAsync(int frameworkId)
+        {
+            var questionIds = await _context.QuestionFramework
+                .Where(qf => qf.FrameworkID == frameworkId)
+                .Select(qf => qf.QuestionID)
+                .ToListAsync();
+
+            return questionIds;
+        }
+
     }
 }

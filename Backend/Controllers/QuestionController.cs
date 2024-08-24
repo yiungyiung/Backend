@@ -37,6 +37,17 @@ namespace Backend.Controllers
             }
             return Ok(question);
         }
+        [Authorize(Roles = "Admin,Manager,Vendor")]
+        [HttpGet("framework/{frameworkId}")]
+        public async Task<IActionResult> GetQuestionIdsByFramework(int frameworkId)
+        {
+            var questionIds = await _questionService.GetQuestionIdsByFrameworkAsync(frameworkId);
+            if (questionIds == null || !questionIds.Any())
+            {
+                return NotFound($"No questions found for framework with ID {frameworkId}.");
+            }
+            return Ok(questionIds);
+        }
 
     }
 }

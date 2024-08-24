@@ -7,5 +7,6 @@ namespace Backend.Services
     {
         Task<Question> AddQuestionAsync(QuestionDto questionDto);
         Task<DetailedQuestionDto> GetQuestionByIdAsync(int questionID);
+        Task<IEnumerable<int>> GetQuestionIdsByFrameworkAsync(int frameworkId);
     }
 }
