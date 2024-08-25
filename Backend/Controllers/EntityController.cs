@@ -135,5 +135,30 @@ namespace Backend.Controllers
             return CreatedAtAction(nameof(GetUnitOfMeasurementById), new { id = unitOfMeasurement.UOMID }, unitOfMeasurement);
         }
         #endregion
+
+        #region Status
+        [HttpGet("statuses")]
+        public async Task<ActionResult<IEnumerable<Status>>> GetAllStatuses()
+        {
+            var statuses = await _entityService.GetAllStatusesAsync();
+            return Ok(statuses);
+        }
+
+        [HttpGet("statuses/{id}")]
+        public async Task<ActionResult<Status>> GetStatusById(int id)
+        {
+            var status = await _entityService.GetStatusByIdAsync(id);
+            if (status == null) return NotFound();
+            return Ok(status);
+        }
+
+        [HttpPost("statuses")]
+        public async Task<ActionResult> AddStatus(Status status)
+        {
+            await _entityService.AddStatusAsync(status);
+            return CreatedAtAction(nameof(GetStatusById), new { id = status.StatusID }, status);
+        }
+        #endregion
+
     }
 }

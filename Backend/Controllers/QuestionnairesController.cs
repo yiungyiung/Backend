@@ -38,7 +38,7 @@ namespace Backend.Controllers
             return Ok(questionnaire);
         }
 
-        [Authorize(Roles = "Vendor,Admin")]
+        [Authorize(Roles = "Admin,Vendor")]
         [HttpGet("{questionnaireId}")]
         public async Task<IActionResult> GetQuestions(int questionnaireId)
         {

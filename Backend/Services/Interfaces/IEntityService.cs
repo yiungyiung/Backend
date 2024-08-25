@@ -34,4 +34,8 @@ public interface IEntityService
     Task AddUnitOfMeasurementAsync(UnitOfMeasurement unitOfMeasurement);
     #endregion
 
+ Task AddStatusAsync(Status status);
+Task<Status> GetStatusByIdAsync(int id);
+Task<IEnumerable<Status>> GetAllStatusesAsync();
+
 }

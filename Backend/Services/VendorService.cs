@@ -29,7 +29,15 @@ namespace Backend.Services
                 .AsNoTracking()
                 .ToListAsync();
         }
+        public async Task<int?> GetVendorIdByUserIdAsync(int userId)
+        {
+            var vendor = await _context.Vendors
+                .Where(v => v.UserID == userId)
+                .Select(v => new { v.VendorID })
+                .FirstOrDefaultAsync();
 
+            return vendor?.VendorID;
+        }
         public async Task<Vendor> AddVendorAsync(VendorDto vendorDto)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();

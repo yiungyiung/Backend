@@ -16,5 +16,6 @@ namespace Backend.Services.Interfaces
         Task<IEnumerable<Tier>> GetTiersAsync();
 
         Task<IEnumerable<Vendor>> GetVendorsByTierAsync(int tierId);
+        Task<int?> GetVendorIdByUserIdAsync(int userId);
     }
 }

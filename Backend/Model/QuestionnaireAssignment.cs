@@ -24,6 +24,6 @@ namespace Backend.Model
         public DateTime AssignmentDate { get; set; }
 
         public DateTime DueDate { get; set; }
-        public DateTime SubmissionDate { get; set; }
+        public DateTime? SubmissionDate { get; set; }
     }
 }

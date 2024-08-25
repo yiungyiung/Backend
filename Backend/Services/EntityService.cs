@@ -101,5 +101,23 @@ public class EntityService : IEntityService
         await _context.SaveChangesAsync();
     }
     #endregion
+    
+    #region Status
+    public async Task<IEnumerable<Status>> GetAllStatusesAsync()
+    {
+        return await _context.Status.ToListAsync();
+    }
+
+    public async Task<Status> GetStatusByIdAsync(int id)
+    {
+        return await _context.Status.FindAsync(id);
+    }
+
+    public async Task AddStatusAsync(Status status)
+    {
+        _context.Status.Add(status);
+        await _context.SaveChangesAsync();
+    }
+    #endregion
 
 }
