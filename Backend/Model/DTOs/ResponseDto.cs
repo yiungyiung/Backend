@@ -4,8 +4,8 @@
     {
         public int AssignmentID { get; set; }
         public int QuestionID { get; set; }
-        public int OptionID { get; set; }
-        public List<TextBoxResponseDto> TextBoxResponses { get; set; }
+        public int? OptionID { get; set; }
+        public List<TextBoxResponseDto> TextBoxResponses { get; set; } = new List<TextBoxResponseDto>();
     }
 
     public class TextBoxResponseDto

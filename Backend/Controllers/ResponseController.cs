@@ -25,8 +25,35 @@ namespace Backend.Controllers
                 return BadRequest(ModelState);
             }
 
-            await _responseService.SaveResponseAsync(responseDto);
-            return Ok();
+            try
+            {
+                await _responseService.SaveResponseAsync(responseDto);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                // Log the exception here if needed
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while saving the response.");
+            }
+        }
+        [HttpPost("bulk")]
+        public async Task<IActionResult> SaveAllResponses([FromBody] List<ResponseDto> responseDtos)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                await _responseService.SaveAllResponsesAsync(responseDtos);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                // Log the exception here if needed
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while saving the responses.");
+            }
         }
     }
 }
