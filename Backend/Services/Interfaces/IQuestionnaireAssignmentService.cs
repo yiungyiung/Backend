@@ -9,5 +9,6 @@ namespace Backend.Services.Interfaces
         void CreateAssignments(QuestionnaireAssignmentDto dto);
         QuestionnaireAssignment GetAssignmentById(int assignmentId);
         IEnumerable<QuestionnaireAssignment> GetAssignmentsByVendorId(int vendorId);
+        IEnumerable<QuestionnaireAssignment> GetAllAssignments();
     }
 }

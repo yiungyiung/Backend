@@ -3,6 +3,7 @@ using System.Linq;
 using Backend.Model;
 using Backend.Model.DTOs;
 using Backend.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Services
 {
@@ -43,6 +44,15 @@ namespace Backend.Services
         public IEnumerable<QuestionnaireAssignment> GetAssignmentsByVendorId(int vendorId)
         {
             return _context.QuestionnaireAssignments.Where(qa => qa.VendorID == vendorId).ToList();
+        }
+
+        public IEnumerable<QuestionnaireAssignment> GetAllAssignments()
+        {
+            return _context.QuestionnaireAssignments
+                .Include(qa => qa.Vendor)
+                .Include(qa => qa.Questionnaire)
+                .Include(qa => qa.Status)
+                .ToList(); 
         }
     }
 }

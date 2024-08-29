@@ -48,5 +48,12 @@ namespace Backend.Controllers
             var assignments = _service.GetAssignmentsByVendorId(vendorId);
             return Ok(assignments);
         }
+        [Authorize(Roles = "Admin,Manager")]
+        [HttpGet]
+        public IActionResult GetAllAssignments()
+        {
+            var assignments = _service.GetAllAssignments();
+            return Ok(assignments);
+        }
     }
 }
