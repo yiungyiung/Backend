@@ -38,6 +38,20 @@ namespace Backend.Services
 
             return vendor?.VendorID;
         }
+
+        public async Task<List<VendorsByCategoryDto>> GetVendorsGroupedByCategoryAsync()
+        {
+            var result = await _context.Vendors
+                .GroupBy(v => v.Category.CategoryName)
+                .Select(group => new VendorsByCategoryDto
+                {
+                    CategoryName = group.Key,
+                    VendorCount = group.Count()
+                })
+                .ToListAsync();
+
+            return result;
+        }
         public async Task<Vendor> AddVendorAsync(VendorDto vendorDto)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();

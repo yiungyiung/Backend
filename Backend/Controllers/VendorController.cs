@@ -135,5 +135,20 @@ namespace Backend.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin,Manager")]
+        [HttpGet("vendors/byCategory")]
+        public async Task<IActionResult> GetVendorsGroupedByCategory()
+        {
+            try
+            {
+                var vendorsGroupedByCategory = await _vendorService.GetVendorsGroupedByCategoryAsync();
+                return Ok(vendorsGroupedByCategory);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+            }
+        }
+
     }
 }
