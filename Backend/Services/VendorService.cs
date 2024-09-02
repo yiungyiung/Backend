@@ -38,6 +38,13 @@ namespace Backend.Services
 
             return vendor?.VendorID;
         }
+        public async Task<Vendor?> GetVendorbyID(int VendorID)
+        {
+            var vendor = await _context.Vendors
+       .FirstOrDefaultAsync(v => v.VendorID == VendorID);
+
+            return vendor;
+        }
 
         public async Task<List<VendorsByCategoryDto>> GetVendorsGroupedByCategoryAsync()
         {

@@ -18,5 +18,6 @@ namespace Backend.Services.Interfaces
         Task<IEnumerable<Vendor>> GetVendorsByTierAsync(int tierId);
         Task<int?> GetVendorIdByUserIdAsync(int userId);
         Task<List<VendorsByCategoryDto>> GetVendorsGroupedByCategoryAsync();
+        Task<Vendor?> GetVendorbyID(int VendorID);
     }
 }

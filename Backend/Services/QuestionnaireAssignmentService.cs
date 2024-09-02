@@ -16,7 +16,7 @@ namespace Backend.Services
             _context = context;
         }
 
-        public void CreateAssignments(QuestionnaireAssignmentDto dto)
+        public async Task CreateAssignments(QuestionnaireAssignmentDto dto)
         {
             foreach (var vendorID in dto.VendorIDs)
             {
@@ -30,29 +30,41 @@ namespace Backend.Services
                     SubmissionDate = null,
                 };
 
-                _context.QuestionnaireAssignments.Add(assignment);
+                await _context.QuestionnaireAssignments.AddAsync(assignment);
             }
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public QuestionnaireAssignment GetAssignmentById(int assignmentId)
+        public async Task<QuestionnaireAssignment> GetAssignmentById(int assignmentId)
         {
-            return _context.QuestionnaireAssignments.Find(assignmentId);
+            return await _context.QuestionnaireAssignments.FindAsync(assignmentId);
         }
 
-        public IEnumerable<QuestionnaireAssignment> GetAssignmentsByVendorId(int vendorId)
+        public async Task<List<QuestionnaireAssignment>> GetAssignmentsByVendorId(int vendorId)
         {
-            return _context.QuestionnaireAssignments.Where(qa => qa.VendorID == vendorId).ToList();
+            return await _context.QuestionnaireAssignments
+                .Where(qa => qa.VendorID == vendorId)
+                .ToListAsync();
         }
 
-        public IEnumerable<QuestionnaireAssignment> GetAllAssignments()
+        public async Task<List<QuestionnaireAssignment>> GetAllAssignments()
         {
-            return _context.QuestionnaireAssignments
+            return await _context.QuestionnaireAssignments
                 .Include(qa => qa.Vendor)
                 .Include(qa => qa.Questionnaire)
                 .Include(qa => qa.Status)
-                .ToList(); 
+                .ToListAsync();
+        }
+
+        public async Task<List<QuestionnaireAssignment>> GetAssignmentsByQuestionnaireId(int questionnaireId)
+        {
+            return await _context.QuestionnaireAssignments
+                .Include(qa => qa.Vendor)
+                .Include(qa => qa.Questionnaire)
+                .Include(qa => qa.Status)
+                .Where(qa => qa.QuestionnaireID == questionnaireId)
+                .ToListAsync();
         }
     }
 }

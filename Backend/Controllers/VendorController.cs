@@ -134,6 +134,25 @@ namespace Backend.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
             }
         }
+        [Authorize(Roles = "Admin,Manager,Vendor")]
+        [HttpGet("byVendorID/{vendorID}")]
+        public async Task<IActionResult> GetVendorbyID(int vendorID)
+        {
+            try
+            {
+                var vendor = await _vendorService.GetVendorbyID(vendorID);
+                if (vendor == null)
+                {
+                    return NotFound($"No vendor found with ID {vendorID}");
+                }
+                return Ok(vendor);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+            }
+        }
+
 
         [Authorize(Roles = "Admin,Manager")]
         [HttpGet("vendors/byCategory")]

@@ -6,9 +6,10 @@ namespace Backend.Services.Interfaces
 {
     public interface IQuestionnaireAssignmentService
     {
-        void CreateAssignments(QuestionnaireAssignmentDto dto);
-        QuestionnaireAssignment GetAssignmentById(int assignmentId);
-        IEnumerable<QuestionnaireAssignment> GetAssignmentsByVendorId(int vendorId);
-        IEnumerable<QuestionnaireAssignment> GetAllAssignments();
+        Task CreateAssignments(QuestionnaireAssignmentDto dto);
+        Task<QuestionnaireAssignment> GetAssignmentById(int assignmentId);
+        Task<List<QuestionnaireAssignment>> GetAssignmentsByVendorId(int vendorId);
+        Task<List<QuestionnaireAssignment>> GetAllAssignments();
+        Task<List<QuestionnaireAssignment>> GetAssignmentsByQuestionnaireId(int questionnaireId);
     }
 }
