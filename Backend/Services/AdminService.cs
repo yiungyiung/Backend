@@ -15,11 +15,13 @@ namespace Backend.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _configuration;
+        private readonly IEmailService _emailService;
 
-        public AdminService(ApplicationDbContext context, IConfiguration configuration)
+        public AdminService(ApplicationDbContext context, IConfiguration configuration, IEmailService emailService)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
         }
 
         public async Task<IEnumerable<object>> GetAllUsersAsync()
@@ -57,7 +59,9 @@ namespace Backend.Services
             user.IsActive = true;
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
-            await SendWelcomeEmailAsync(user.Email, password);
+            string subject = "Welcome to Our Application";
+            string body = $"Your account has been created. Your temporary password is: {password}. Please change it upon your first login.";
+            await _emailService.SendEmailAsync(user.Email, subject, body);
             return user;
         }
 
@@ -80,31 +84,6 @@ namespace Backend.Services
             }
         }
 
-        public async Task SendWelcomeEmailAsync(string email, string password)
-        {
-            var smtpServer = _configuration["SmtpSettings:Server"];
-            var smtpPort = int.Parse(_configuration["SmtpSettings:Port"]);
-            var smtpUsername = _configuration["SmtpSettings:Username"];
-            var smtpPassword = _configuration["SmtpSettings:Password"];
-
-            using (var client = new SmtpClient(smtpServer, smtpPort))
-            {
-                client.UseDefaultCredentials = false;
-                client.Credentials = new NetworkCredential(smtpUsername, smtpPassword);
-                client.EnableSsl = true;
-
-                var mailMessage = new MailMessage
-                {
-                    From = new MailAddress(smtpUsername),
-                    Subject = "Welcome to Our Application",
-                    Body = $"Your account has been created. Your temporary password is: {password}. Please change it upon your first login.",
-                    IsBodyHtml = false,
-                };
-                mailMessage.To.Add(email);
-
-                await client.SendMailAsync(mailMessage);
-            }
-        }
 
         public async Task<User> UpdateUserAsync(User user)
         {
