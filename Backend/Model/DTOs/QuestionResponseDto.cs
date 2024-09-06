@@ -4,6 +4,8 @@
     {
         public int QuestionID { get; set; }
         public string QuestionText { get; set; }
+        public string DomainName { get; set; }
+        public int DomainID { get; set; }
         public List<QuestionOptionResponseDto> OptionResponses { get; set; } = new List<QuestionOptionResponseDto>();
         public List<QuestionTextBoxResponseDto> TextBoxResponses { get; set; } = new List<QuestionTextBoxResponseDto>();
     }

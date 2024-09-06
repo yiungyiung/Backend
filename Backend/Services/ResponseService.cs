@@ -55,6 +55,7 @@ namespace Backend.Services
 
             await _context.SaveChangesAsync();
         }
+
         public async Task SaveAllResponsesAsync(List<ResponseDto> responses)
         {
             // Loop through each responseDto and save it to the database
@@ -104,16 +105,15 @@ namespace Backend.Services
             }
 
             await _context.SaveChangesAsync();
+
             // Update the StatusID of the QuestionnaireAssignment to 1
             var assignment = await _context.QuestionnaireAssignments
                 .FirstOrDefaultAsync(a => a.AssignmentID == assignmentID);
-            Console.WriteLine(assignment.StatusID + "yash");
             if (assignment != null)
             {
                 assignment.StatusID = 1;
                 assignment.SubmissionDate = DateTime.Now;
                 await _context.SaveChangesAsync();
-                Console.WriteLine(assignment.StatusID+"yash");
             }
         }
 
@@ -138,6 +138,7 @@ namespace Backend.Services
             var responses = await _context.Responses
                 .Where(r => r.AssignmentID == assignmentId)
                 .Include(r => r.Question)
+                .ThenInclude(q => q.Domain) // Include Domain information
                 .ToListAsync();
 
             foreach (var response in responses)
@@ -146,24 +147,16 @@ namespace Backend.Services
                 {
                     QuestionID = response.QuestionID,
                     QuestionText = response.Question.QuestionText,
-                    OptionResponses = await _context.OptionResponses
-                        .Where(or => or.ResponseID == response.ResponseID)
-                        .Select(or => new QuestionOptionResponseDto
-                        {
-                            OptionID = or.OptionID,
-                            OptionText = or.Option.OptionText
-                        }).ToListAsync(),
+                    DomainName = response.Question.Domain?.DomainName, // Set DomainName
+                    DomainID = response.Question.Domain?.DomainID ?? default, // Set DomainID with a default value
 
-                    TextBoxResponses = await _context.TextBoxResponses
-                        .Where(tr => tr.ResponseID == response.ResponseID)
-                        .Select(tr => new QuestionTextBoxResponseDto
-                        {
-                            TextBoxID = tr.TextBoxID,
-                            Label = tr.TextBox.Label,
-                            TextValue = tr.TextValue
-                        }).ToListAsync()
+                    // Retrieve and set the OptionResponses
+                    OptionResponses = await GetOptionResponsesAsync(response.ResponseID),
+
+                    // Retrieve and set the TextBoxResponses
+                    TextBoxResponses = await GetTextBoxResponsesAsync(response.ResponseID)
                 };
-                
+
                 assignmentResponseDto.Questions.Add(questionDto);
             }
 
@@ -196,6 +189,7 @@ namespace Backend.Services
             var response = await _context.Responses
                 .Where(r => r.AssignmentID == assignmentId && r.QuestionID == questionId)
                 .Include(r => r.Question)
+                .ThenInclude(q => q.Domain) // Include Domain information
                 .FirstOrDefaultAsync();
 
             if (response == null)
@@ -206,30 +200,18 @@ namespace Backend.Services
             {
                 QuestionID = response.QuestionID,
                 QuestionText = response.Question.QuestionText,
+                DomainName = response.Question.Domain?.DomainName, // Set DomainName
+                DomainID = response.Question.Domain?.DomainID ?? default, // Set DomainID with a default value
 
                 // Retrieve and set the OptionResponses
-                OptionResponses = await _context.OptionResponses
-                    .Where(or => or.ResponseID == response.ResponseID)
-                    .Select(or => new QuestionOptionResponseDto
-                    {
-                        OptionID = or.OptionID,
-                        OptionText = or.Option.OptionText
-                    }).ToListAsync(),
+                OptionResponses = await GetOptionResponsesAsync(response.ResponseID),
 
                 // Retrieve and set the TextBoxResponses
-                TextBoxResponses = await _context.TextBoxResponses
-                    .Where(tr => tr.ResponseID == response.ResponseID)
-                    .Select(tr => new QuestionTextBoxResponseDto
-                    {
-                        TextBoxID = tr.TextBoxID,
-                        Label = tr.TextBox.Label,
-                        TextValue = tr.TextValue
-                    }).ToListAsync()
+                TextBoxResponses = await GetTextBoxResponsesAsync(response.ResponseID)
             };
 
             return questionResponseDto;
         }
-
 
         private async Task<List<QuestionOptionResponseDto>> GetOptionResponsesAsync(int responseId)
         {
@@ -255,7 +237,5 @@ namespace Backend.Services
                 })
                 .ToListAsync();
         }
-
-
     }
 }
