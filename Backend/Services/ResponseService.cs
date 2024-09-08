@@ -52,6 +52,20 @@ namespace Backend.Services
                     _context.TextBoxResponses.Add(textBoxResponse);
                 }
             }
+            if (responseDto.FileUploadResponses != null && responseDto.FileUploadResponses.Count > 0)
+            {
+                foreach (var fileUploadResponseDto in responseDto.FileUploadResponses)
+                {
+                    var fileUploadResponse = new FileUploadResponses
+                    {
+                        ResponseID = responses.ResponseID,
+                        FileUploadID = fileUploadResponseDto.FileUploadID,
+                        FilePath = fileUploadResponseDto.FilePath,
+                        FileName = fileUploadResponseDto.FileName
+                    };
+                    _context.FileUploadResponses.Add(fileUploadResponse);
+                }
+            }
 
             await _context.SaveChangesAsync();
         }
@@ -102,6 +116,20 @@ namespace Backend.Services
                         _context.TextBoxResponses.Add(textBoxResponse);
                     }
                 }
+                if (responseDto.FileUploadResponses != null && responseDto.FileUploadResponses.Count > 0)
+                {
+                    foreach (var fileUploadResponseDto in responseDto.FileUploadResponses)
+                    {
+                        var fileUploadResponse = new FileUploadResponses
+                        {
+                            ResponseID = responsesEntity.ResponseID,
+                            FileUploadID = fileUploadResponseDto.FileUploadID,
+                            FilePath = fileUploadResponseDto.FilePath,
+                            FileName = fileUploadResponseDto.FileName
+                        };
+                        _context.FileUploadResponses.Add(fileUploadResponse);
+                    }
+                }
             }
 
             await _context.SaveChangesAsync();
@@ -150,11 +178,23 @@ namespace Backend.Services
                     DomainName = response.Question.Domain?.DomainName, // Set DomainName
                     DomainID = response.Question.Domain?.DomainID ?? default, // Set DomainID with a default value
 
-                    // Retrieve and set the OptionResponses
-                    OptionResponses = await GetOptionResponsesAsync(response.ResponseID),
-
-                    // Retrieve and set the TextBoxResponses
-                    TextBoxResponses = await GetTextBoxResponsesAsync(response.ResponseID)
+                    TextBoxResponses = await _context.TextBoxResponses
+                        .Where(tr => tr.ResponseID == response.ResponseID)
+                        .Select(tr => new QuestionTextBoxResponseDto
+                        {
+                            TextBoxID = tr.TextBoxID,
+                            Label = tr.TextBox.Label,
+                            TextValue = tr.TextValue
+                        }).ToListAsync(),
+                    FileUploadResponses = await _context.FileUploadResponses
+                        .Where(fu => fu.ResponseID == response.ResponseID)
+                        .Select(fu => new QuestionFileUploadResponseDto
+                        {
+                            FileUploadID = fu.FileUploadID,
+                            Label = fu.FileUpload.Label,
+                            FilePath = fu.FilePath,
+                            FileName = fu.FileName
+                        }).ToListAsync()
                 };
 
                 assignmentResponseDto.Questions.Add(questionDto);
@@ -207,7 +247,23 @@ namespace Backend.Services
                 OptionResponses = await GetOptionResponsesAsync(response.ResponseID),
 
                 // Retrieve and set the TextBoxResponses
-                TextBoxResponses = await GetTextBoxResponsesAsync(response.ResponseID)
+                TextBoxResponses = await _context.TextBoxResponses
+                    .Where(tr => tr.ResponseID == response.ResponseID)
+                    .Select(tr => new QuestionTextBoxResponseDto
+                    {
+                        TextBoxID = tr.TextBoxID,
+                        Label = tr.TextBox.Label,
+                        TextValue = tr.TextValue
+                    }).ToListAsync(),
+                FileUploadResponses = await _context.FileUploadResponses
+                    .Where(fu => fu.ResponseID == response.ResponseID)
+                    .Select(fu => new QuestionFileUploadResponseDto
+                    {
+                        FileUploadID = fu.FileUploadID,
+                        Label = fu.FileUpload.Label,
+                        FilePath = fu.FilePath,
+                        FileName = fu.FileName
+                    }).ToListAsync()
             };
 
             return questionResponseDto;

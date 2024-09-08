@@ -11,10 +11,11 @@ namespace Backend.Controllers
     public class ResponseController : ControllerBase
     {
         private readonly IResponseService _responseService;
-
-        public ResponseController(IResponseService responseService)
+        private readonly IConfiguration _configuration;
+        public ResponseController(IResponseService responseService, IConfiguration configuration)
         {
             _responseService = responseService;
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
         [HttpPost]
@@ -117,5 +118,41 @@ namespace Backend.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving the response.");
             }
         }
+        [HttpPost("upload")]
+        public async Task<IActionResult> UploadFile([FromForm] IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded");
+
+            // Define file path and name
+            var fileName = Path.GetFileName(file.FileName);
+            var uploadPath = Path.Combine(_configuration["FileSettings:UploadPath"], fileName);
+
+            // Ensure the upload directory exists
+            var directory = Path.GetDirectoryName(uploadPath);
+            if (!Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            // Save the file to the server
+            try
+            {
+                using (var stream = new FileStream(uploadPath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+
+            // Return successful response
+            return Ok(new { FilePath = uploadPath, FileName = fileName });
+        }
+
+
+
     }
 }

@@ -34,6 +34,8 @@ namespace Backend.Services
             await AddOptionsAsync(question.QuestionID, questionDto.Options);
             await AddTextboxesAsync(question.QuestionID, questionDto.Textboxes);
             await AddFrameworksAsync(question.QuestionID, questionDto.FrameworkIDs);
+            await AddFileUploadsAsync(question.QuestionID, questionDto.FileUploads);
+
 
             return question;
         }
@@ -79,6 +81,19 @@ namespace Backend.Services
             }
             await _context.SaveChangesAsync();
         }
+        private async Task AddFileUploadsAsync(int questionID, IEnumerable<FileUploadDto> fileUploads)
+        {
+            foreach (var fileUpload in fileUploads)
+            {
+                _context.FileUploads.Add(new FileUpload
+                {
+                    QuestionID = questionID,
+                    Label = fileUpload.Label,
+                    OrderIndex = fileUpload.OrderIndex
+                });
+            }
+            await _context.SaveChangesAsync();
+        }
         public async Task<DetailedQuestionDto> GetQuestionByIdAsync(int questionID)
         {
             var question = await _context.Questions
@@ -98,9 +113,14 @@ namespace Backend.Services
                 .Include(t => t.UnitOfMeasurement)
                 .ToListAsync();
 
+
+            var fileUploads = await _context.FileUploads
+                .Where(f => f.QuestionID == questionID)
+                .ToListAsync(); // Get file uploads
+
             //var fileUploads = await _context.FileUploads
-             //   .Where(f => f.QuestionID == questionID)
-              //  .ToListAsync();
+            //   .Where(f => f.QuestionID == questionID)
+            //  .ToListAsync();
 
             // Map the data to DetailedQuestionDto
             var detailedQuestionDto = new DetailedQuestionDto
@@ -127,6 +147,12 @@ namespace Backend.Services
                     OrderIndex = t.OrderIndex,
                     UOMID = t.UOMID,
                     UOMType = t.UnitOfMeasurement?.UOMType
+                }).ToList(),
+                FileUploads = fileUploads.Select(f => new DFileUploadDto  // Added FileUploads mapping
+                {
+                    FileUploadID = f.FileUploadID,
+                    Label = f.Label,
+                    OrderIndex = f.OrderIndex
                 }).ToList()
             };
 

@@ -32,4 +32,15 @@ namespace Backend.Model
         public Responses Response { get; set; }
         public Textbox TextBox { get; set; }
     }
+    public class FileUploadResponses
+    {
+        public int FileUploadResponseID { get; set; }
+        public int ResponseID { get; set; }
+        public int FileUploadID { get; set; }
+        public string FilePath { get; set; }  // Path where file is stored on the server
+        public string FileName { get; set; }  // Original file name
+
+        public Responses Response { get; set; }  // Navigation property to Responses
+        public FileUpload FileUpload { get; set; }  // Navigation property to FileUpload
+    }
 }

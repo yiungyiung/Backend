@@ -33,8 +33,35 @@ public class ApplicationDbContext : DbContext
     public DbSet<Responses> Responses { get; set; }
     public DbSet<OptionResponses> OptionResponses { get; set; }
     public DbSet<TextBoxResponses> TextBoxResponses { get; set; }
+
+    public DbSet<FileUploadResponses> FileUploadResponses { get; set; }
+    public DbSet<FileUpload> FileUploads { get; set; }  
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<FileUpload>()
+            .HasKey(fu => fu.FileUploadID);  // Primary key
+
+        modelBuilder.Entity<FileUpload>()
+            .HasOne(fu => fu.Question)  // Foreign key to Question
+            .WithMany()
+            .HasForeignKey(fu => fu.QuestionID)
+            .OnDelete(DeleteBehavior.Cascade);  // Delete behavior
+
+        modelBuilder.Entity<FileUploadResponses>()
+            .HasKey(fur => fur.FileUploadResponseID);  // Primary key
+
+        modelBuilder.Entity<FileUploadResponses>()
+            .HasOne(fur => fur.Response)  // Foreign key to Responses
+            .WithMany()
+            .HasForeignKey(fur => fur.ResponseID)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<FileUploadResponses>()
+            .HasOne(fur => fur.FileUpload)  // Foreign key to FileUpload
+            .WithMany()
+            .HasForeignKey(fur => fur.FileUploadID)
+            .OnDelete(DeleteBehavior.Cascade);
+
         modelBuilder.Entity<VendorHierarchy>()
             .HasKey(vh => vh.HierarchyID);
 
