@@ -177,7 +177,7 @@ namespace Backend.Services
                     QuestionText = response.Question.QuestionText,
                     DomainName = response.Question.Domain?.DomainName, // Set DomainName
                     DomainID = response.Question.Domain?.DomainID ?? default, // Set DomainID with a default value
-
+                    OptionResponses = await GetOptionResponsesAsync(response.ResponseID),
                     TextBoxResponses = await _context.TextBoxResponses
                         .Where(tr => tr.ResponseID == response.ResponseID)
                         .Select(tr => new QuestionTextBoxResponseDto
