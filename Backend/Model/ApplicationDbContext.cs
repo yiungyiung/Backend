@@ -35,7 +35,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<TextBoxResponses> TextBoxResponses { get; set; }
 
     public DbSet<FileUploadResponses> FileUploadResponses { get; set; }
-    public DbSet<FileUpload> FileUploads { get; set; }  
+    public DbSet<FileUpload> FileUploads { get; set; }
+    public DbSet<Notification> Notifications { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<FileUpload>()

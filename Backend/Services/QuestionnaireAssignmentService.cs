@@ -11,10 +11,12 @@ namespace Backend.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly IEmailService _emailService;
-        public QuestionnaireAssignmentService(ApplicationDbContext context, IEmailService emailService)
+        private readonly INotificationService _notificationService;
+        public QuestionnaireAssignmentService(ApplicationDbContext context, IEmailService emailService, INotificationService notificationService)
         {
             _context = context;
             _emailService = emailService;
+            _notificationService = notificationService;
         }
 
         public async Task CreateAssignments(QuestionnaireAssignmentDto dto)
@@ -45,6 +47,8 @@ namespace Backend.Services
                     {
                         // Send notification email to the user's email
                         await SendAssignmentNotificationEmailAsync(user.Email, dto.QuestionnaireID);
+                        string message = $"A new assignment has been assigned to you for Questionnaire ID: {dto.QuestionnaireID}.";
+                        await _notificationService.CreateNotification(user.UserId, message);
                     }
                 }
             }

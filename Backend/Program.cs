@@ -24,6 +24,7 @@ services.AddScoped<IResponseService, ResponseService>();
 services.AddScoped<IAuthService, AuthService>();
 services.AddScoped<ComplianceService>();
 services.AddScoped<IEmailService, EmailService>();
+services.AddScoped<INotificationService, NotificationService>();
 
 services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
