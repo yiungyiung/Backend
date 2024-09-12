@@ -31,7 +31,7 @@ namespace Backend.Controllers
             return Ok(new { message = "Assignments created successfully." });
         }
 
-        [Authorize(Roles = "Admin,Manager,Vendor")]
+        [Authorize(Roles = "Admin,Manager,Vendor,Analyst")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetAssignmentById(int id)
         {
@@ -45,7 +45,7 @@ namespace Backend.Controllers
             return Ok(assignment);
         }
 
-        [Authorize(Roles = "Admin,Manager,Vendor")]
+        [Authorize(Roles = "Admin,Manager,Vendor,Analyst")]
         [HttpGet("vendor/{vendorId}")]
         public async Task<IActionResult> GetAssignmentsByVendorId(int vendorId)
         {
@@ -53,7 +53,7 @@ namespace Backend.Controllers
             return Ok(assignments);
         }
 
-        [Authorize(Roles = "Admin,Manager")]
+        [Authorize(Roles = "Admin,Manager,Analyst")]
         [HttpGet]
         public async Task<IActionResult> GetAllAssignments()
         {
@@ -61,12 +61,25 @@ namespace Backend.Controllers
             return Ok(assignments);
         }
 
-        [Authorize(Roles = "Admin,Manager,Vendor")]
+        [Authorize(Roles = "Admin,Manager,Vendor,Analyst")]
         [HttpGet("questionnaire/{questionnaireId}")]
         public async Task<IActionResult> GetAssignmentsByQuestionnaireId(int questionnaireId)
         {
             var assignments = await _service.GetAssignmentsByQuestionnaireId(questionnaireId);
             return Ok(assignments);
+        }
+        [Authorize(Roles = "Admin,Manager,Analyst")]
+        [HttpGet("statistics")]
+        public async Task<IActionResult> GetAssignmentStatistics()
+        {
+            var statistics = await _service.GetAssignmentStatistics();
+
+            if (statistics == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(statistics);
         }
     }
 }

@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Backend.Model;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Backend.Controllers
 {
+    [Authorize(Roles = "Admin,Manager,Analyst,Vendor")]
     [Route("api/[controller]")]
     [ApiController]
     public class EntityController : ControllerBase

@@ -91,5 +91,40 @@ namespace Backend.Services
                 .Where(qa => qa.QuestionnaireID == questionnaireId)
                 .ToListAsync();
         }
+
+        public async Task<AssignmentStatisticsDto> GetAssignmentStatistics()
+        {
+            // Get all assignments and include their related status
+            var assignments = await _context.QuestionnaireAssignments
+                .Include(qa => qa.Status)
+                .ToListAsync();
+
+            // Group assignments by status and count them
+            var assignmentsByStatus = assignments
+                .GroupBy(qa => qa.StatusID)
+                .Select(group => new StatusCountDto
+                {
+                    StatusID = group.Key,
+                    StatusName = _context.Status
+                        .Where(s => s.StatusID == group.Key)
+                        .Select(s => s.StatusName)
+                        .FirstOrDefault(),
+                    Count = group.Count()
+                })
+                .ToList();
+
+            // Count how many late submissions (StatusID == 1 and SubmissionDate > DueDate)
+            var lateSubmissionsCount = assignments
+                .Where(qa => qa.StatusID == 1 && qa.SubmissionDate.HasValue && qa.SubmissionDate > qa.DueDate)
+                .Count();
+
+            return new AssignmentStatisticsDto
+            {
+                TotalAssignments = assignments.Count,
+                AssignmentsByStatus = assignmentsByStatus,
+                LateSubmissions = lateSubmissionsCount
+            };
+        }
     }
+
 }

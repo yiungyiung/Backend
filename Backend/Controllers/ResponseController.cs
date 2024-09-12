@@ -1,5 +1,6 @@
 ﻿using Backend.Model.DTOs;
 using Backend.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,7 +18,7 @@ namespace Backend.Controllers
             _responseService = responseService;
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
-
+        [Authorize(Roles = "Vendor")]
         [HttpPost]
         public async Task<IActionResult> SaveResponse([FromBody] ResponseDto responseDto)
         {
@@ -37,6 +38,7 @@ namespace Backend.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while saving the response.");
             }
         }
+        [Authorize(Roles = "Vendor")]
         [HttpPost("bulk")]
         public async Task<IActionResult> SaveAllResponses([FromBody] List<ResponseDto> responseDtos)
         {
@@ -57,6 +59,7 @@ namespace Backend.Controllers
             }
         }
         // New endpoint to get all responses for a specific assignment
+        [Authorize(Roles = "Admin,Manager,Analyst,Vendor")]
         [HttpGet("assignment/{assignmentId}")]
         public async Task<IActionResult> GetResponsesForAssignment(int assignmentId)
         {
@@ -76,7 +79,7 @@ namespace Backend.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving the responses.");
             }
         }
-
+        [Authorize(Roles = "Admin,Manager,Analyst,Vendor")]
         // New endpoint to get all responses for a specific questionnaire
         [HttpGet("questionnaire/{questionnaireId}")]
         public async Task<IActionResult> GetAllResponsesForQuestionnaire(int questionnaireId)
@@ -97,7 +100,7 @@ namespace Backend.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving the responses.");
             }
         }
-
+        [Authorize(Roles = "Admin,Manager,Analyst,Vendor")]
         // New endpoint to get a specific response for a given assignment and question
         [HttpGet("assignment/{assignmentId}/question/{questionId}")]
         public async Task<IActionResult> GetResponseForAssignmentAndQuestion(int assignmentId, int questionId)
@@ -118,6 +121,7 @@ namespace Backend.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving the response.");
             }
         }
+        [Authorize(Roles = "Admin,Manager,Analyst,Vendor")]
         [HttpPost("upload")]
         public async Task<IActionResult> UploadFile([FromForm] IFormFile file)
         {

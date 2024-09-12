@@ -11,5 +11,6 @@ namespace Backend.Services.Interfaces
         Task<List<QuestionnaireAssignment>> GetAssignmentsByVendorId(int vendorId);
         Task<List<QuestionnaireAssignment>> GetAllAssignments();
         Task<List<QuestionnaireAssignment>> GetAssignmentsByQuestionnaireId(int questionnaireId);
+        Task<AssignmentStatisticsDto> GetAssignmentStatistics();
     }
 }
