@@ -121,7 +121,7 @@ namespace Backend.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving the response.");
             }
         }
-        [Authorize(Roles = "Admin,Manager,Analyst,Vendor")]
+     
         [HttpPost("upload")]
         public async Task<IActionResult> UploadFile([FromForm] IFormFile file)
         {
