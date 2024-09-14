@@ -3,6 +3,7 @@ using Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
 
 namespace Backend.Controllers
 {
@@ -121,7 +122,7 @@ namespace Backend.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving the response.");
             }
         }
-     
+
         [HttpPost("upload")]
         public async Task<IActionResult> UploadFile([FromForm] IFormFile file)
         {
@@ -154,6 +155,50 @@ namespace Backend.Controllers
 
             // Return successful response
             return Ok(new { FilePath = uploadPath, FileName = fileName });
+        }
+
+        [HttpGet("download")]
+        public async Task<IActionResult> DownloadFile([FromQuery] string filePath)
+        {
+            // Sanitize the file name to prevent directory traversal attacks
+            var fileName = Path.GetFileName(filePath);
+
+            // Define the file path
+            var uploadPath = Path.Combine(_configuration["FileSettings:UploadPath"], fileName);
+
+            // Ensure the file path is within the defined upload directory (to avoid directory traversal)
+            if (!uploadPath.StartsWith(_configuration["FileSettings:UploadPath"]))
+            {
+                return BadRequest("Invalid file path.");
+            }
+
+            // Check if the file exists
+            if (!System.IO.File.Exists(uploadPath))
+            {
+                return NotFound("File not found.");
+            }
+
+            // Try to determine the file's content type
+            var provider = new FileExtensionContentTypeProvider();
+            if (!provider.TryGetContentType(fileName, out var contentType))
+            {
+                contentType = "application/octet-stream"; // Fallback content type
+            }
+
+            try
+            {
+                // Read the file as a stream asynchronously
+                var fileBytes = await System.IO.File.ReadAllBytesAsync(uploadPath);
+
+                // Return the file to the client
+                return File(fileBytes, contentType, fileName);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception and return a server error
+                // _logger.LogError(ex, "Error while downloading file: {FileName}", fileName); // Optional logging
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while downloading the file.");
+            }
         }
 
 
