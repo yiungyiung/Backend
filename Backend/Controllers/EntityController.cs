@@ -112,8 +112,16 @@ namespace Backend.Controllers
             await _entityService.AddFrameworkAsync(framework);
             return CreatedAtAction(nameof(GetFrameworkById), new { id = framework.FrameworkID }, framework);
         }
-        #endregion
 
+        #endregion
+        #region FrameworkDetails
+        [HttpGet("frameworkdetails")]
+        public async Task<ActionResult<IEnumerable<FrameworkDetails>>> GetAllFrameworkDetails()
+        {
+            var frameworkDetails = await _entityService.GetAllFrameworkDetailsAsync();
+            return Ok(frameworkDetails);
+        }
+        #endregion
         #region UnitOfMeasurement
         [HttpGet("unitsOfMeasurement")]
         public async Task<ActionResult<IEnumerable<UnitOfMeasurement>>> GetAllUnitsOfMeasurement()

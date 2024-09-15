@@ -26,6 +26,7 @@ public interface IEntityService
     Task<IEnumerable<Framework>> GetAllFrameworksAsync();
     Task<Framework> GetFrameworkByIdAsync(int id);
     Task AddFrameworkAsync(Framework framework);
+    Task<IEnumerable<FrameworkDetails>> GetAllFrameworkDetailsAsync();
     #endregion
 
     #region UnitOfMeasurement

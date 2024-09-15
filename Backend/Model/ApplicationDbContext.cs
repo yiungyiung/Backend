@@ -37,6 +37,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<FileUploadResponses> FileUploadResponses { get; set; }
     public DbSet<FileUpload> FileUploads { get; set; }
     public DbSet<Notification> Notifications { get; set; }
+    public DbSet<FrameworkDetails> FrameworkDetails { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<FileUpload>()
@@ -164,6 +165,14 @@ public class ApplicationDbContext : DbContext
             .WithMany()
             .HasForeignKey(tr => tr.TextBoxID)
             .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<FrameworkDetails>()
+            .HasKey(fd => fd.FrameworkID);  // FrameworkID is the primary key of FrameworkDetails
+
+        modelBuilder.Entity<FrameworkDetails>()
+            .HasOne(fd => fd.Framework)  // FrameworkDetails has a one-way relationship with Framework
+            .WithMany()                  // No navigation property in Framework
+            .HasForeignKey(fd => fd.FrameworkID)  // Foreign key in FrameworkDetails
+            .OnDelete(DeleteBehavior.Cascade);    // Optional: configure delete behavior
         base.OnModelCreating(modelBuilder);
     }
 }

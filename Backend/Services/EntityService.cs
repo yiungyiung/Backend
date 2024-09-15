@@ -82,6 +82,21 @@ public class EntityService : IEntityService
         _context.Framework.Add(framework);
         await _context.SaveChangesAsync();
     }
+    public async Task<IEnumerable<FrameworkDetails>> GetAllFrameworkDetailsAsync()
+    {
+        return await _context.FrameworkDetails.ToListAsync();
+    }
+
+    public async Task<FrameworkDetails> GetFrameworkDetailsByIdAsync(int id)
+    {
+        return await _context.FrameworkDetails.FindAsync(id);
+    }
+
+    public async Task AddFrameworkDetailsAsync(FrameworkDetails frameworkDetails)
+    {
+        _context.FrameworkDetails.Add(frameworkDetails);
+        await _context.SaveChangesAsync();
+    }
     #endregion
 
     #region UnitOfMeasurement
