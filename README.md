@@ -102,6 +102,10 @@ Initializes and configures the application:
 - **Analyst**: Read-only access to certain endpoints.
 - **Vendor**: Limited access for managing responses and vendor-related tasks.
 
+You're right; setting up the database and applying migrations are crucial steps. Here's the revised **Running the Application** section with these additions:
+
+---
+
 ## Running the Application
 
 1. **Clone the Repository**:
@@ -114,15 +118,29 @@ Initializes and configures the application:
    cd your-project-directory
    ```
 
-3. **Restore Dependencies**:
+3. **Configure the Database**:
+   - Open `appsettings.json` and update the connection string to match your database configuration:
+     ```json
+     "ConnectionStrings": {
+       "DefaultConnection": "Server=your_server;Database=your_database;User Id=your_user;Password=your_password;"
+     }
+     ```
+
+4. **Restore Dependencies**:
    ```bash
    dotnet restore
    ```
 
-4. **Run the Application**:
+5. **Apply Migrations**:
+   - Run the following command to apply pending migrations to the database:
+     ```bash
+     dotnet ef database update
+     ```
+
+6. **Run the Application**:
    ```bash
    dotnet run
    ```
 
-5. **Access the Application**:
+7. **Access the Application**:
    Open a browser and navigate to `http://localhost:3267`.
