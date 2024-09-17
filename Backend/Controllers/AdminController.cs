@@ -59,7 +59,7 @@ namespace Backend.Controllers
                     Name = _htmlEncoder.Encode(userDto.Name),
                     IsActive = true,
                 };
-
+                Console.WriteLine(user);
                 var addedUser = await _adminService.AddUserAsync(user);
                 return CreatedAtAction(nameof(GetAllUsers), new { id = addedUser.UserId }, addedUser);
             }

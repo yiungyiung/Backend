@@ -60,6 +60,14 @@ services.AddControllers();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var service = scope.ServiceProvider;
+    var context = service.GetRequiredService<ApplicationDbContext>();
+    context.Database.Migrate(); // Apply pending migrations
+    context.SeedData(); // Seed your initial data here
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();

@@ -57,6 +57,7 @@ namespace Backend.Services
             String password = GenerateRandomPassword();
             user.PasswordHash = HashPassword(password);
             user.IsActive = true;
+            Console.WriteLine($"yash: {user.IsActive}");
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
             string subject = "Welcome to Our Application";
@@ -65,7 +66,6 @@ namespace Backend.Services
             return user;
         }
 
-        // ... (continuing from the previous AdminService code)
 
         private string GenerateRandomPassword()
         {

@@ -70,7 +70,8 @@ namespace Backend.Services
                     Email = vendorDto.User.Email,
                     Name = vendorDto.User.Name,
                     Contact_Number = vendorDto.User.Contact_Number,
-                    RoleId = 4, 
+                    RoleId = 4,
+                    IsActive= true,
                 };
 
                 var addedUser = await _adminService.AddUserAsync(user);
