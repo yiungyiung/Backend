@@ -144,3 +144,5 @@ You're right; setting up the database and applying migrations are crucial steps.
 
 7. **Access the Application**:
    Open a browser and navigate to `http://localhost:3267`.
+
+8. Login after seeding will be admin@admin.com and password will be admin
