@@ -20,6 +20,9 @@ namespace Backend.Services
             var currentYear = DateTime.Now.Year;
             var fiveYearsAgo = currentYear - 4;
 
+            // Get all distinct statuses from the database
+            var allStatuses = _context.Status.Select(s => s.StatusName).ToList();
+
             var data = _context.QuestionnaireAssignments
                 .Include(qa => qa.Status)
                 .Include(qa => qa.Questionnaire)
@@ -38,17 +41,24 @@ namespace Backend.Services
             for (int year = fiveYearsAgo; year <= currentYear; year++)
             {
                 var yearData = data.Where(d => d.Year == year).ToList();
-                var complied = yearData.FirstOrDefault(d => d.Status == "Complied")?.Count ?? 0;
-                var notComplied = yearData.FirstOrDefault(d => d.Status == "Not-Complied")?.Count ?? 0;
 
-                result[year.ToString()] = new Dictionary<string, int>
+                // Initialize dictionary for the current year with all statuses
+                var statusCounts = allStatuses.ToDictionary(status => status, status => 0);
+
+                // Populate counts based on available data
+                foreach (var entry in yearData)
                 {
-                    { "Complied", complied },
-                    { "Not-Complied", notComplied }
-                };
+                    if (statusCounts.ContainsKey(entry.Status))
+                    {
+                        statusCounts[entry.Status] = entry.Count;
+                    }
+                }
+
+                result[year.ToString()] = statusCounts;
             }
 
             return result;
         }
+
     }
 }

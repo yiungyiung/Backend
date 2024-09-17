@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Backend.Controllers
 {
-    [Authorize(Roles = "Admin,Manager")]
+    [Authorize(Roles = "Admin,Manager,Analyst")]
     [Route("api/[controller]")]
     [ApiController]
 
