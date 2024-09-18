@@ -1,4 +1,5 @@
-﻿using Backend.Model.DTOs;
+﻿using Backend.Model;
+using Backend.Model.DTOs;
 using Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -19,7 +20,7 @@ namespace Backend.Controllers
         {
             _vendorService = vendorService;
         }
-        [Authorize(Roles = "Admin,Manager")]
+        [Authorize(Roles = "Admin,Manager,Analyst")]
         [HttpGet("vendors")]
         public async Task<IActionResult> GetAllVendors()
         {
@@ -55,7 +56,7 @@ namespace Backend.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
             }
         }
-        [Authorize(Roles = "Admin,Manager,Vendor")]
+        [Authorize(Roles = "Admin,Manager,Vendor,Analyst")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetVendorById(int id)
         {
@@ -74,7 +75,7 @@ namespace Backend.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
             }
         }
-        [Authorize(Roles = "Admin,Manager,Vendor")]
+        [Authorize(Roles = "Admin,Manager,Vendor,Analyst")]
         [HttpGet("categories")]
         public async Task<IActionResult> GetCategories()
         {
@@ -88,7 +89,7 @@ namespace Backend.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
             }
         }
-        [Authorize(Roles = "Admin,Manager")]
+        [Authorize(Roles = "Admin,Manager,Analyst")]
         [HttpGet("tiers")]
         public async Task<IActionResult> GetTiers()
         {
@@ -102,7 +103,7 @@ namespace Backend.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
             }
         }
-        [Authorize(Roles = "Admin,Manager")]
+        [Authorize(Roles = "Admin,Manager,Analyst")]
         [HttpGet("vendors/byTier/{tierId}")]
         public async Task<IActionResult> GetVendorsByTier(int tierId)
         {
@@ -116,7 +117,7 @@ namespace Backend.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
             }
         }
-        [Authorize(Roles = "Admin,Manager,Vendor")]
+        [Authorize(Roles = "Admin, Manager, Vendor, Analyst")]
         [HttpGet("byUserId/{userId}")]
         public async Task<IActionResult> GetVendorIdByUserId(int userId)
         {
@@ -134,7 +135,7 @@ namespace Backend.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
             }
         }
-        [Authorize(Roles = "Admin,Manager,Vendor")]
+        [Authorize(Roles = "Admin,Manager,Vendor,Analyst")]
         [HttpGet("byVendorID/{vendorID}")]
         public async Task<IActionResult> GetVendorbyID(int vendorID)
         {
@@ -154,7 +155,7 @@ namespace Backend.Controllers
         }
 
 
-        [Authorize(Roles = "Admin,Manager")]
+        [Authorize(Roles = "Admin,Manager,Analyst")]
         [HttpGet("vendors/byCategory")]
         public async Task<IActionResult> GetVendorsGroupedByCategory()
         {

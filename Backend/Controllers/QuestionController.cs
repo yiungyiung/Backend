@@ -26,7 +26,7 @@ namespace Backend.Controllers
             var addedQuestion = await _questionService.AddQuestionAsync(question);
             return Ok(addedQuestion);
         }
-        [Authorize(Roles = "Admin,Manager,Vendor")]
+        [Authorize(Roles = "Admin,Manager,Vendor,Analyst")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetQuestionById(int id)
         {
@@ -37,7 +37,7 @@ namespace Backend.Controllers
             }
             return Ok(question);
         }
-        [Authorize(Roles = "Admin,Manager,Vendor")]
+        [Authorize(Roles = "Admin,Manager,Vendor,Analyst")]
         [HttpGet("framework/{frameworkId}")]
         public async Task<IActionResult> GetQuestionIdsByFramework(int frameworkId)
         {

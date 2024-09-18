@@ -26,7 +26,7 @@ namespace Backend.Controllers
             var questionnaireId = await _questionnaireService.CreateQuestionnaireAsync(questionnaireDto);
             return Ok(new { QuestionnaireID = questionnaireId });
         }
-        [Authorize(Roles = "Admin,Manager")]
+        [Authorize(Roles = "Admin,Manager,Analyst")]
         [HttpGet("getallquestionnaires")]
         public async Task<IActionResult> GetAllQuestionnaire()
         {
@@ -38,7 +38,7 @@ namespace Backend.Controllers
             return Ok(questionnaire);
         }
 
-        [Authorize(Roles = "Admin,Vendor")]
+        [Authorize(Roles = "Admin,Vendor,Analyst")]
         [HttpGet("{questionnaireId}")]
         public async Task<IActionResult> GetQuestions(int questionnaireId)
         {
