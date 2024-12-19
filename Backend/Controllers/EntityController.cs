@@ -83,7 +83,7 @@ namespace Backend.Controllers
         }
 
         [HttpPost("domains")]
-        public async Task<ActionResult> AddDomain(Domain domain)
+        public async Task<ActionResult> AddDomain([FromBody] Domain domain)
         {
             await _entityService.AddDomainAsync(domain);
             return CreatedAtAction(nameof(GetDomainById), new { id = domain.DomainID }, domain);
@@ -139,7 +139,7 @@ namespace Backend.Controllers
         }
 
         [HttpPost("unitsOfMeasurement")]
-        public async Task<ActionResult> AddUnitOfMeasurement(UnitOfMeasurement unitOfMeasurement)
+        public async Task<ActionResult> AddUnitOfMeasurement([FromBody] UnitOfMeasurement unitOfMeasurement)
         {
             await _entityService.AddUnitOfMeasurementAsync(unitOfMeasurement);
             return CreatedAtAction(nameof(GetUnitOfMeasurementById), new { id = unitOfMeasurement.UOMID }, unitOfMeasurement);
